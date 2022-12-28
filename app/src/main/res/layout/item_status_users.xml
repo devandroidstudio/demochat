@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="user"
+            type="com.example.chatapplication.model.User" />
+    </data>
+
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                imageUrl="@{user.image}"
+                android:id="@+id/image_status_user_chat"
+                android:src="@drawable/cool_background"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+
+            <View
+                android:visibility="gone"
+                android:id="@+id/view_status_chat"
+                android:background="@drawable/custom_status_users"
+                android:layout_gravity="bottom|end"
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"/>
+            <TextView
+                android:gravity="center"
+                android:textSize="@dimen/_7ssp"
+                android:visibility="gone"
+                android:id="@+id/view_status_off_status"
+                android:background="@drawable/csutom_status_off_user"
+                android:layout_gravity="bottom|end"
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"/>
+
+        </FrameLayout>
+        <TextView
+            android:fontFamily="@font/alatsi"
+            android:text="@{user.name}"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:maxWidth="@dimen/_50sdp"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</layout>

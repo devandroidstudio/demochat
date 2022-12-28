@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="conversation"
+            type="com.example.chatapplication.model.ChatMessage" />
+    </data>
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp">
+            <de.hdodenhof.circleimageview.CircleImageView
+                imageUrl="@{conversation.conversionImage}"
+                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <View
+                android:visibility="gone"
+                android:id="@+id/view_status_chat"
+                android:background="@drawable/custom_status_users"
+                android:layout_gravity="bottom|end"
+                android:layout_width="@dimen/_10sdp"
+                android:layout_height="@dimen/_10sdp"/>
+            <TextView
+                android:gravity="center"
+                android:textSize="@dimen/_7ssp"
+                android:visibility="gone"
+                android:id="@+id/view_status_off_status"
+                android:background="@drawable/csutom_status_off_user"
+                android:layout_gravity="bottom|end"
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_marginStart="10dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@{conversation.conversionName}"
+                android:fontFamily="@font/alatsi"
+                android:textSize="@dimen/_13ssp"
+                android:textStyle="bold"
+                android:textColor="?attr/text_color"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:id="@+id/txt_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:text="@{conversation.message}"
+                android:textSize="@dimen/_12ssp"
+                android:textColor="?attr/sub_text_color"
+                android:id="@+id/txtRecentMessage"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

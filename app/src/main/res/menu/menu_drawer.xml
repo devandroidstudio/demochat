@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Account">
+        <menu>
+            <group android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/nav_my_profile"
+                    android:icon="@drawable/ic_round_person_24"
+                    android:title="My Profile" />
+
+                <item
+                    android:id="@+id/nav_account_setting"
+                    android:icon="@drawable/ic_baseline_settings_24"
+                    android:title="My Setting" />
+                <item
+                    android:id="@+id/nav_time_sheet"
+                    android:icon="@drawable/ic_baseline_access_time_24"
+                    android:title="DateTime" />
+            </group>
+
+        </menu>
+    </item>
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_baseline_logout_24"
+            android:title="@string/logout" />
+    </group>
+
+</menu>

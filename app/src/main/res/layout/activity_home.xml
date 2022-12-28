@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="HomeViewModel"
+            type="com.example.chatapplication.model.HomeViewModel" />
+    </data>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawerLayout_home"
+        android:animateLayoutChanges="true"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.material.navigation.NavigationView
+            android:layout_gravity="start"
+            app:headerLayout="@layout/layout_header"
+            android:id="@+id/nav_view_home"
+            app:menu="@menu/menu_drawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/content_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.google.android.material.appbar.AppBarLayout
+                android:text="aldjkhasd"
+                android:background="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <androidx.appcompat.widget.Toolbar
+                    app:title="Chat"
+                    android:id="@+id/toolbar_home"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:navigationIcon="@drawable/ic_baseline_menu_24"
+                    android:theme="?attr/actionBarTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"/>
+            </com.google.android.material.appbar.AppBarLayout>
+            <RelativeLayout
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/view_page_home"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+                <com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:id="@+id/bottom_home"
+                    android:layout_alignParentBottom="true"
+                    app:menu="@menu/menu_root"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>

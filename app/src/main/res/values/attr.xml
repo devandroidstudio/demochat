@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="dark_them">
+        <attr name="text_color" format="color"/>
+        <attr name="sub_text_color" format="color"/>
+        <attr name="status_user_color" format="color"/>
+    </declare-styleable>
+</resources>

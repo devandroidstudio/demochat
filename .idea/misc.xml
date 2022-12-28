@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable-v24/bg_btn_gg_fb.xml" value="0.1" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable-v24/bg_input.xml" value="0.1" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable-v24/bg_tab_layout.xml" value="0.1" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/activity_user.xml" value="0.2425" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_bottom_sheet.xml" value="0.296" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_btn_bottom_sheet_upload_image.xml" value="0.288" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_chat_input.xml" value="0.278" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_content_top.xml" value="0.278" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_count_item_news.xml" value="0.315" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_item_profile.xml" value="0.315" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/bg_received_message.xml" value="0.278" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/csutom_status_off_user.xml" value="0.296" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/custom_button.xml" value="0.3215" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/custom_dialog_forget_password.xml" value="0.3215" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/custom_status_users.xml" value="0.296" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/dialog_verification.xml" value="0.3215" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_baseline_edit_24.xml" value="0.315" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_baseline_info_24.xml" value="0.296" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_baseline_logout_24.xml" value="0.315" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_baseline_menu_24.xml" value="0.1" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_baseline_navigate_next_24.xml" value="0.315" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/ic_launcher_background.xml" value="0.296" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/drawable/status_activty_user.xml" value="0.2425" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/activity_chat.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/activity_home.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/activity_main.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/dialog_forget_password.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/dialog_verification.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_chat.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_contact.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_news.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_profile.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_sign_in.xml" value="0.3614583333333333" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/fragment_sign_up.xml" value="0.264" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_contact_user.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_container_news.xml" value="0.536" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_container_recent_conversion.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_container_sent_message.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_contaner_received_message.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_message_users.xml" value="0.2965811965811966" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_photo.xml" value="0.3614583333333333" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/item_status_users.xml" value="0.3614583333333333" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_bottom_sheet.xml" value="0.3614583333333333" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_bottom_sheet_photo_view.xml" value="0.3614583333333333" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_bottom_sheet_profile.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_bottom_sheet_upload_image.xml" value="0.3625" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_detail_bottom_sheet_news.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_header.xml" value="0.4" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/menu/menu_drawer.xml" value="0.1" />
+        <entry key="..\:/android/ChatApplication/app/src/main/res/menu/menu_root.xml" value="0.3625" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

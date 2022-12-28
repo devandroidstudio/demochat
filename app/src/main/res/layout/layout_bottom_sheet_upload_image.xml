@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet"
+    android:padding="20dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
+            app:backgroundTint="@color/white"
+            android:src="@drawable/ic_baseline_close_24"
+            app:fabSize="mini" />
+        <TextView
+            android:layout_toEndOf="@id/fab_close"
+            android:layout_centerInParent="true"
+            android:layout_toStartOf="@id/btn_addition_image"
+            android:text="@string/image"
+            android:textStyle="bold"
+            android:fontFamily="@font/aclonica"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageButton
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:id="@+id/btn_addition_image"
+            android:layout_gravity="center|end"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_baseline_add_24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_page_news"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/btn_upload_image"
+        android:text="@string/upload_image"
+        android:fontFamily="@font/aclonica"
+        android:textAllCaps="false"
+        android:background="@drawable/bg_btn_bottom_sheet_upload_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

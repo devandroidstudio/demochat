@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">ChatApplication</string>
+    <string name="we_happy_to_see_you_again_to_see_your_account_you_should_login_first">We happy to see you again. To see your account, you should login first</string>
+    <string name="sign_in_with_google_or_facebook">Sign in with google or facebook</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="please_fill_in_the_forms_continue">Please fill in the forms continue</string>
+    <string name="email">Email</string>
+    <string name="full_name">Full name</string>
+    <string name="password">Password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_new_account">Create new Account</string>
+    <string name="signin">Login</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="send">Send</string>
+    <string name="forget_password">Forget Password</string>
+    <string name="api_token">766328528144-at5vebnu0nv0a76s127bc732lfh8ekde.apps.googleusercontent.com</string>
+    <string name="home">Home</string>
+    <string name="contact">Contacts</string>
+    <string name="news">News</string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="chat">Chats</string>
+    <string name="online">Online</string>
+    <string name="camera">Camera</string>
+    <string name="upload_image">Upload Image</string>
+    <string name="image">Image</string>
+    <string name="notification">Notification</string>
+    <string name="success">Success</string>
+    <string name="ok">OK</string>
+    <string name="username">Username</string>
+    <string name="save">Save</string>
+    <string name="pass">***********</string>
+</resources>

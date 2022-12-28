@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="user"
+            type="com.example.chatapplication.model.RootViewModel"
+            />
+    </data>
+
+    <LinearLayout
+        android:paddingTop="30dp"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Login Account"
+                android:textSize="30sp"
+                android:fontFamily="@font/alatsi"
+                android:textColor="#3560ff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_marginStart="10dp"
+                android:src="@drawable/fire"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="20dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/edit_email_login"
+            app:startIconDrawable="@drawable/ic_baseline_email_24"
+            app:startIconCheckable="true"
+            app:startIconTint="@color/black"
+            app:boxStrokeColor="#3560ff"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxStrokeErrorColor="#F44336"
+            android:hint="@string/email"
+            app:hintTextColor="#3560ff"
+            android:layout_width="match_parent"
+            app:hintAnimationEnabled="true"
+            app:endIconDrawable="@drawable/ic_baseline_close_24"
+            app:endIconCheckable="true"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/black"
+            app:errorEnabled="true"
+            app:errorTextAppearance="@style/ErrorText"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:text="@={user.email}"
+                android:id="@+id/text_edit_email"
+                android:background="@drawable/bg_input"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            app:hintTextColor="#3560ff"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/edit_password_login"
+            app:errorEnabled="true"
+            app:errorTextAppearance="@style/ErrorText"
+            app:counterMaxLength="6"
+            android:layout_marginTop="20dp"
+            app:startIconDrawable="@drawable/ic_baseline_lock_open_24"
+            android:hint="@string/password"
+            android:layout_width="match_parent"
+            app:hintAnimationEnabled="true"
+            app:passwordToggleEnabled="true"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_edit_password"
+                android:text="@={user.password}"
+                android:background="@drawable/bg_input"
+                android:inputType="textPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:onClick="@{() -> user.onClickForgetPassword()}"
+            android:layout_gravity="end"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:fontFamily="@font/alatsi"
+            android:textAllCaps="false"
+            android:textColor="#BDB7B7"
+            android:text="@string/forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <com.google.android.material.card.MaterialCardView
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatButton
+                android:onClick="@{() -> user.onClickLogin()}"
+                android:textColor="@color/white"
+                android:text="Login"
+                android:background="#3560ff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </LinearLayout>
+</layout>
