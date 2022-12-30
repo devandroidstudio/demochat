@@ -25,7 +25,8 @@ import com.example.chatapplication.model.User;
 import com.example.chatapplication.model.UserViewModel;
 
 import java.util.List;
-
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class ContactFragment extends Fragment implements UserListener {

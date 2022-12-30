@@ -14,19 +14,22 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class News implements Serializable {
-    public String resourceUserPost, namePost,date;
+    public String resourceUserPost, namePost,date,userId;
     public List<String> resource;
-    public News( List<String> resource,String resourceUserPost, String namePost) {
+
+
+    public News(List<String> resource, String resourceUserPost, String namePost) {
         this.resourceUserPost = resourceUserPost;
         this.namePost = namePost;
         this.resource = resource;
     }
 
-    public News(List<String> resource,String resourceUserPost, String namePost, String date) {
+    public News(List<String> resource,String resourceUserPost, String namePost, String date, String userId) {
         this.resourceUserPost = resourceUserPost;
         this.namePost = namePost;
         this.date = date;
         this.resource = resource;
+        this.userId = userId;
     }
     public Map<String,Object> updateNews(){
         Map<String,Object> result = new HashMap<>();

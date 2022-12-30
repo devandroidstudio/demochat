@@ -73,6 +73,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             holder.binding.getRoot().setOnClickListener(v->{
                 requestPermission();
             });
+
         }else {
             holder.binding.getRoot().setOnClickListener(view ->{
                 View viewDialog = LayoutInflater.from(context).inflate(R.layout.layout_detail_bottom_sheet_news,null);

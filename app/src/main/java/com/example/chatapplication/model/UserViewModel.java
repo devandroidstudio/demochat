@@ -22,4 +22,6 @@ public class UserViewModel extends ViewModel {
     public void setListUsers(List<User> list) {
         listUsers.setValue(list);
     }
+
+
 }

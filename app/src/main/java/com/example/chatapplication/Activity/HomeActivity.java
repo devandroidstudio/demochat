@@ -52,6 +52,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -238,6 +239,7 @@ public class HomeActivity extends BaseActivity {
                                 list.add(user);
                             }
                             viewModel.setListUsers(list.stream().filter(x-> !Objects.equals(x.userId, currentUserId)).collect(Collectors.toList()));
+                            newsViewModel.setListUsersId(list.stream().map(x->x.userId).collect(Collectors.toList()));
                             getListNews(list);
                         }
                     }
@@ -272,39 +274,41 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void getListNews(@NonNull List<User> list){
-        for (User users : list) {
-            reference.child(users.userId).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-                        if (listNews != null){
-                            listNews.clear();
-                        }
-                        for (DataSnapshot postSnapshot : snapshot.getChildren()){
-                            News news = postSnapshot.getValue(News.class);
-                            listNews.add(news);
-                        }
-                        listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
-                        listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
-                        newsViewModel.setListNews(listNews);
-                        isExits = true;
+//        for (User users : list) {
+//
+//        }
+//        if (!isExits){
+//            listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
+//            listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
+//            newsViewModel.setListNews(listNews);
+//        }
+        reference.child(LocalDate.now().toString()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    if (listNews != null){
+                        listNews.clear();
                     }
-                    else {
-                        isExits = false;
+                    for (DataSnapshot postSnapshot : snapshot.getChildren()){
+                        News news = postSnapshot.getValue(News.class);
+                        listNews.add(news);
                     }
+                    listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
+                    listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
+                    newsViewModel.setListNews(listNews);
+                    isExits = true;
                 }
+                else {
+                    isExits = false;
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(HomeActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
-        if (!isExits){
-            listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
-            listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
-            newsViewModel.setListNews(listNews);
-        }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(HomeActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
     private void addDataFirestore(){
