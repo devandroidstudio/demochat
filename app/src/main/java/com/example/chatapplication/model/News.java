@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
 public class News implements Serializable {
     public String resourceUserPost, namePost,date,userId;
     public List<String> resource;

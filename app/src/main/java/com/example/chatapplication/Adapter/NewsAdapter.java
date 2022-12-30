@@ -26,8 +26,11 @@ import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Transform.ZoomOutPageTransformer;
 import com.example.chatapplication.Utils.Constants;
+import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.ItemContainerNewsBinding;
+import com.example.chatapplication.model.AccountViewModel;
+import com.example.chatapplication.model.AccountViewModel2;
 import com.example.chatapplication.model.News;
 import com.example.chatapplication.model.TimeDifference;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -50,10 +53,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     private int countCurrent = 0;
     private boolean isRunning = false;
     private final ICallBackNewsListener listener;
+    private PreferenceManager preferenceManager;
     public NewsAdapter(List<News> list, Context context, ICallBackNewsListener listener) {
         this.list = list;
         this.context = context;
         this.listener = listener;
+        this.preferenceManager = new PreferenceManager(context);
     }
 
     @NonNull
@@ -65,16 +70,24 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     @Override
     public void onBindViewHolder(@NonNull NewsViewHolder holder, int position) {
         News news = list.get(position);
-        holder.binding.setNewsViewModel(news);
-        holder.binding.setUrlImage(news.resource.get(0));
+        AccountViewModel2 accountViewModel2 = new AccountViewModel2();
+        accountViewModel2.displayName.set(news.namePost);
+        accountViewModel2.urlImage.set(news.resource.get(0));
+        accountViewModel2.urlUserPost.set(news.resourceUserPost);
+        holder.binding.setNewsViewModel(accountViewModel2);
         holder.binding.setNumber(String.valueOf(news.resource.size()));
+
         if (position == 0){
             holder.binding.textNumberImage.setVisibility(View.GONE);
             holder.binding.getRoot().setOnClickListener(v->{
                 requestPermission();
             });
-
-        }else {
+            accountViewModel2.urlImage.set(AccountViewModel.url.get());
+        } else if (news.userId.equals(preferenceManager.getString(Constants.KEY_USER_ID))){
+            accountViewModel2.urlUserPost.set(AccountViewModel.url.get());
+            accountViewModel2.displayName.set(AccountViewModel.displayName.get());
+        }
+        else {
             holder.binding.getRoot().setOnClickListener(view ->{
                 View viewDialog = LayoutInflater.from(context).inflate(R.layout.layout_detail_bottom_sheet_news,null);
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context,R.style.BottomSheetTheme);

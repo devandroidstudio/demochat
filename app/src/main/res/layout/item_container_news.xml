@@ -5,10 +5,11 @@
     <data>
         <variable
             name="newsViewModel"
-            type="com.example.chatapplication.model.News" />
-        <variable
-            name="urlImage"
-            type="String" />
+            type="com.example.chatapplication.model.AccountViewModel2" />
+<!--        <variable-->
+<!--            name="urlImage"-->
+<!--            type="String" />-->
+
         <variable
             name="number"
             type="String" />
@@ -23,7 +24,7 @@
             android:layout_height="@dimen/_169sdp">
 
             <com.makeramen.roundedimageview.RoundedImageView
-                imageUrlNews="@{urlImage}"
+                imageUrlNews="@{newsViewModel.urlImage}"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -48,7 +49,7 @@
                 android:layout_margin="@dimen/_15sdp"
                 android:layout_gravity="bottom"
                 android:textColor="@color/white"
-                android:text="@{newsViewModel.namePost}"
+                android:text="@{newsViewModel.displayName}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <com.makeramen.roundedimageview.RoundedImageView
@@ -56,7 +57,7 @@
                 app:riv_border_color="@color/white"
                 app:riv_border_width="@dimen/_2sdp"
                 app:riv_oval="true"
-                imageUrlNews="@{newsViewModel.resourceUserPost}"
+                imageUrlNews="@{newsViewModel.urlUserPost}"
                 android:id="@+id/image_avatar"
                 android:layout_margin="@dimen/_15sdp"
                 android:src="@drawable/picture"

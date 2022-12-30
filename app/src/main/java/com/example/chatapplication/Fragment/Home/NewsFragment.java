@@ -35,6 +35,7 @@ import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Transform.ZoomOutPageTransformer;
 import com.example.chatapplication.Utils.Constants;
+import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.FragmentNewsBinding;
@@ -52,6 +53,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -93,6 +95,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
     private static boolean isExits = false;
     private static List<News> newsList;
     private static String strNews = "";
+    private FirebaseUser user;
     private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
@@ -134,8 +137,6 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         listImageCurrent2 = new ArrayList<>();
         newsList = new ArrayList<>();
         newsViewModel = new ViewModelProvider(requireActivity()).get(NewsViewModel.class);
-        System.out.println(newsViewModel.getListUsersId().getValue().toString());
-        loading(false);
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Uploading...");
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -146,9 +147,11 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         binding.rcvNews.setItemAnimator(new DefaultItemAnimator());
         binding.rcvNews.setHasFixedSize(true);
         AccountViewModel.url.set(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
+
         return binding.getRoot();
     }
     private void getData(){
+
         reference.child(LocalDate.now().toString()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -163,12 +166,18 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                     }
                     newsList.add(news);
                 }
-                binding.rcvNews.setVisibility(View.VISIBLE);
-                listImageCurrent2.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : AccountViewModel.url.get());
-                newsList.add(0,new News(listImageCurrent2,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png","Add a news"));
-                adapter = new NewsAdapter(newsList, getContext(), NewsFragment.this);
-                binding.rcvNews.setAdapter(adapter);
-                adapter.notifyItemRangeInserted(0,newsList.size());
+                if (newsList.size() == 0){
+                    loading(true);
+                }else {
+                    loading(false);
+                    binding.rcvNews.setVisibility(View.VISIBLE);
+                    listImageCurrent2.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : AccountViewModel.url.get());
+                    newsList.add(0,new News(listImageCurrent2,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png","Add a news"));
+                    adapter = new NewsAdapter(newsList, getContext(), NewsFragment.this);
+                    binding.rcvNews.setAdapter(adapter);
+                    adapter.notifyItemRangeInserted(0,newsList.size());
+                }
+
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -205,11 +214,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startForProfileImageResult.launch(intent);
     }
-    public String getFileExtension(Uri uri) {
-        ContentResolver cr = requireActivity().getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(cr.getType(uri));
-    }
+
     private void showDialogResult(List<Uri> list){
         View viewDialog = LayoutInflater.from(requireContext()).inflate(R.layout.layout_bottom_sheet_upload_image,null);
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),R.style.BottomSheetTheme);
@@ -257,7 +262,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
 
                 progressDialog.show();
                 for (int i = 0; i < list.size(); i++) {
-                    final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+getFileExtension(list.get(i)));
+                    final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(list.get(i),requireActivity()));
                     fileRef.putFile(list.get(i)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -283,7 +288,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                                                     }
                                                 });
                                             }else {
-                                                News news = new News(uris, FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString(), preferenceManager.getString(Constants.KEY_NAME), date, preferenceManager.getString(Constants.KEY_USER_ID));
+                                                News news = new News(uris,AccountViewModel.url.get(), preferenceManager.getString(Constants.KEY_NAME), date, preferenceManager.getString(Constants.KEY_USER_ID));
                                                 reference.keepSynced(true);
                                                 reference.child(LocalDate.now().toString()).push().setValue(news).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override

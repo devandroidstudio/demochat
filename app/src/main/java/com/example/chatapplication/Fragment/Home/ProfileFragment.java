@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Utils.Constants;
+import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.Validation.Validation;
@@ -41,21 +43,26 @@ import com.example.chatapplication.databinding.FragmentProfileBinding;
 import com.example.chatapplication.model.AccountViewModel;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -68,22 +75,25 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
     FragmentProfileBinding binding;
     private PreferenceManager preferenceManager;
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
+    private final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    private static final Map<String, Object> updateDatabase = new HashMap<>();
+    private static final StorageReference storageReference = FirebaseStorage.getInstance().getReference("Profile");
+    private ProgressDialog progressDialog;
     private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
             if (result.getResultCode() == Activity.RESULT_OK){
-                if (result.getData() != null && user != null){
+                if (result.getData() != null){
                     Uri uri = result.getData().getData();
-                    preferenceManager.putString(Constants.KEY_IMAGE,uri.toString());
-                    user.updateProfile(new UserProfileChangeRequest.Builder().setPhotoUri(uri).build()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(uri,requireActivity()));
+                    fileRef.putFile(result.getData().getData()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             if (task.isSuccessful()){
-                                AccountViewModel.url.set(Objects.requireNonNull(user.getPhotoUrl()).toString());
+                                fileRef.getDownloadUrl().addOnSuccessListener(ProfileFragment.this::updatePhoto);
                             }
                         }
-                    });
+                    }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
 
                 }
             }
@@ -95,37 +105,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                              Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater,container,false);
         preferenceManager = new PreferenceManager(requireContext());
-
-//        binding.setName(preferenceManager.getString(Constants.KEY_NAME));
-//        binding.setEmail(preferenceManager.getString(Constants.KEY_EMAIL));
-//        binding.setUrl(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
         binding.layoutUsername.setOnClickListener(this);
         binding.layoutEmail.setOnClickListener(this);
         binding.layoutPass.setOnClickListener(this);
-
+        progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Uploading...");
         onAction();
-        getData();
         return binding.getRoot();
     }
 
-    private void getData() {
-        if (user != null){
-            for (UserInfo profile : user.getProviderData()) {
-                AccountViewModel.email.set(profile.getEmail());
-                AccountViewModel.displayName.set(profile.getDisplayName());
-                AccountViewModel.url.set(Objects.requireNonNull(profile.getPhotoUrl()).toString());
-            }
-        }
-    }
-
     private void onAction() {
-        binding.fabEditProfile.setOnClickListener(view ->{
-            requestPermission();
-
-        });
-        binding.btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-        });
+        binding.fabEditProfile.setOnClickListener(view -> requestPermission());
+        binding.btnLogout.setOnClickListener(v -> FirebaseAuth.getInstance().signOut());
     }
 
     @Override
@@ -134,9 +125,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),R.style.BottomSheetTheme);
         bottomSheetDialog.setContentView(viewDialog);
         bottomSheetDialog.show();
-        viewDialog.findViewById(R.id.btn_close_edit_profile).setOnClickListener(view ->{
-            bottomSheetDialog.dismiss();
-        });
+        viewDialog.findViewById(R.id.btn_close_edit_profile).setOnClickListener(view -> bottomSheetDialog.dismiss());
         AppCompatButton button = viewDialog.findViewById(R.id.btn_save);
         TextInputLayout textInputLayout;
         if (v.getId() == R.id.layout_username){
@@ -165,9 +154,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                     }
                 }
             });
-            button.setOnClickListener(v1 -> {
-                updateDisplayName(Objects.requireNonNull(textInputEditText.getText()).toString(),bottomSheetDialog);
-            });
+            button.setOnClickListener(v1 -> updateDisplayName(Objects.requireNonNull(textInputEditText.getText()).toString(),bottomSheetDialog));
         }else if (v.getId() == R.id.layout_email){
             textInputLayout = viewDialog.findViewById(R.id.edit_email_profile);
             textInputLayout.setVisibility(View.VISIBLE);
@@ -197,9 +184,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                     }
                 }
             });
-            button.setOnClickListener(v1 -> {
-                updateEmail(Objects.requireNonNull(textInputEditText.getText()).toString());
-            });
+            button.setOnClickListener(v1 -> updateEmail(Objects.requireNonNull(textInputEditText.getText()).toString()));
         }else if (v.getId() == R.id.layout_pass){
             textInputLayout = viewDialog.findViewById(R.id.edit_password_profile);
             textInputLayout.setVisibility(View.VISIBLE);
@@ -225,54 +210,66 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                     }
                 }
             });
-            button.setOnClickListener(v1 -> {
-                updatePassword(Objects.requireNonNull(textInputEditText.getText()).toString());
-            });
+            button.setOnClickListener(v1 -> updatePassword(Objects.requireNonNull(textInputEditText.getText()).toString()));
         }
     }
     private void updateDisplayName(String username, BottomSheetDialog bottomSheetDialog){
+        progressDialog.show();
         if (user != null){
             if (username.equals(preferenceManager.getString(Constants.KEY_NAME))){
-                Toast.makeText(requireContext(), "Display name not change", Toast.LENGTH_SHORT).show();
+                showDialogSuccess("Display name not change");
             }else {
                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                         .setDisplayName(username)
                         .build();
-                user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            showDialogSuccess("username");
-                            user.reload();
-                            AccountViewModel.displayName.set(user.getDisplayName());
-                            bottomSheetDialog.dismiss();
-                            preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
-                        }else {
-                            dialogUpdateProfile();
-                        }
+                user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        showDialogSuccess("Update username is success");
+                        user.reload();
+                        AccountViewModel.displayName.set(user.getDisplayName());
+                        bottomSheetDialog.dismiss();
+                        preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
+                        updateDatabase.put(Constants.KEY_NAME,username);
+                        database.collection(Constants.KEY_COLLECTION_USERS).document(preferenceManager.getString(Constants.KEY_USER_ID)).update(updateDatabase);
+                    }else {
+                        dialogUpdateProfile();
                     }
                 });
+
             }
         }
     }
+    private void updatePhoto(Uri uri){
+        progressDialog.show();
+        preferenceManager.putString(Constants.KEY_IMAGE,uri.toString());
+        if (user != null){
+            user.updateProfile(new UserProfileChangeRequest.Builder().setPhotoUri(uri).build()).addOnCompleteListener(task -> {
+                if (task.isSuccessful()){
+                    showDialogSuccess("Update photo is success");
+                    AccountViewModel.url.set(Objects.requireNonNull(user.getPhotoUrl()).toString());
+                    updateDatabase.put(Constants.KEY_IMAGE,uri.toString());
+                    database.collection(Constants.KEY_COLLECTION_USERS).document(preferenceManager.getString(Constants.KEY_USER_ID)).update(updateDatabase);
+                }
+            });
+        }
+    }
     private void updateEmail(String email){
+        progressDialog.show();
         if (user != null){
             if (!Validation.ValidationEmail(email)){
-                Toast.makeText(requireContext(), "Email is not valid", Toast.LENGTH_SHORT).show();
+                showDialogSuccess("Email is not valid");
             }else if (email.equals(preferenceManager.getString(Constants.KEY_EMAIL))){
-                Toast.makeText(requireContext(), "Email not change", Toast.LENGTH_SHORT).show();
+                showDialogSuccess("Email not change");
             }else {
-                user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            showDialogSuccess("email");
-                            user.reload();
-                            AccountViewModel.email.set(user.getEmail());
-                            preferenceManager.putString(Constants.KEY_EMAIL,email);
-                        }else {
-                            dialogUpdateProfile();
-                        }
+                user.updateEmail(email).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        showDialogSuccess("Update email is success");
+                        AccountViewModel.email.set(user.getEmail());
+                        preferenceManager.putString(Constants.KEY_EMAIL,email);
+                        updateDatabase.put(Constants.KEY_EMAIL,email);
+                        database.collection(Constants.KEY_COLLECTION_USERS).document(preferenceManager.getString(Constants.KEY_USER_ID)).update(updateDatabase);
+                    }else {
+                        dialogUpdateProfile();
                     }
                 });
             }
@@ -281,17 +278,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
     private void updatePassword(String password){
         if (user != null){
             if (!Validation.ValidationPassword(password)){
-
+                Toast.makeText(requireContext(), "Password is valid", Toast.LENGTH_SHORT).show();
             }else {
-                user.updatePassword(password).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            showDialogSuccess("password");
-                            user.reload();
-                        }else {
-                            dialogUpdateProfile();
-                        }
+                user.updatePassword(password).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        showDialogSuccess("Update password is success");
+                    }else {
+                        dialogUpdateProfile();
                     }
                 });
             }
@@ -299,17 +292,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
     }
 
     private void showDialogSuccess(String type){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle(R.string.notification);
-        builder.setMessage(String.format(type,"Update %d is success"));
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+      if (user != null){
+          progressDialog.dismiss();
+          AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+          builder.setTitle(R.string.notification);
+          builder.setMessage(type);
+          builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
+          user.reload();
+          AlertDialog alertDialog = builder.create();
+          alertDialog.show();
+      }
     }
 
 
@@ -344,12 +336,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         EditText editPassword = dialog.findViewById(R.id.edit_password_dialog);
         Button btnUpdateDialog = dialog.findViewById(R.id.btn_continues_dialog);
         dialog.show();
-        btnUpdateDialog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reAuthenticate(editEmail.getText().toString(),editPassword.getText().toString());
-                dialog.dismiss();
-            }
+        btnUpdateDialog.setOnClickListener(v -> {
+            reAuthenticate(editEmail.getText().toString(),editPassword.getText().toString());
+            dialog.dismiss();
         });
     }
     @Override
@@ -374,15 +363,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                 });
     }
     public void reAuthenticate(String strEmail, String strPassword){
-        AuthCredential credential = EmailAuthProvider
-                .getCredential(strEmail, strPassword);
-        user.reauthenticate(credential)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                        }
-                    }
-                });
+      if (user != null){
+          AuthCredential credential = EmailAuthProvider
+                  .getCredential(strEmail, strPassword);
+          user.reauthenticate(credential)
+                  .addOnCompleteListener(task -> {
+                      if (task.isSuccessful()){
+                          updateEmail(strEmail);
+                          showDialogSuccess("success");
+                      }
+                  });
+      }
     }
 }

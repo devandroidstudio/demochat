@@ -41,6 +41,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -147,17 +148,17 @@ public class HomeActivity extends BaseActivity {
         TextView txtName =  binding.navViewHome.getHeaderView(0).findViewById(R.id.textView_name_user_nav_header);
         TextView txtEmail =  binding.navViewHome.getHeaderView(0).findViewById(R.id.textView_email_user_nav_header);
         CircleImageView imageView = binding.navViewHome.getHeaderView(0).findViewById(R.id.image_user_header);
-        txtName.setText(user.getDisplayName());
-        txtEmail.setText(user.getEmail());
-
-
-        String resultImage = "";
-        if (user.getPhotoUrl() == null){
-            resultImage = preferenceManager.getString(Constants.KEY_IMAGE);
-        }else {
-            resultImage = user.getPhotoUrl().toString();
+        if (user != null) {
+            for (UserInfo profile : user.getProviderData()) {
+                txtName.setText(profile.getDisplayName());
+                txtEmail.setText(profile.getEmail());
+                AccountViewModel.url.set(profile.getPhotoUrl()== null ? preferenceManager.getString(Constants.KEY_IMAGE) : profile.getPhotoUrl().toString());
+                AccountViewModel.displayName.set(profile.getDisplayName());
+                AccountViewModel.email.set(profile.getEmail());
+            }
         }
-        Picasso.get().load(resultImage).placeholder(R.drawable.ic_baseline_person_pin_24).error(R.drawable.cool_background).into(imageView);
+
+        Picasso.get().load(AccountViewModel.url.get()).placeholder(R.drawable.ic_baseline_person_pin_24).error(R.drawable.cool_background).into(imageView);
         viewModel = new ViewModelProvider(this).get(UserViewModel.class);
         newsViewModel = new ViewModelProvider(this).get(NewsViewModel.class);
         reference = FirebaseDatabase.getInstance().getReference("News");
@@ -239,8 +240,6 @@ public class HomeActivity extends BaseActivity {
                                 list.add(user);
                             }
                             viewModel.setListUsers(list.stream().filter(x-> !Objects.equals(x.userId, currentUserId)).collect(Collectors.toList()));
-                            newsViewModel.setListUsersId(list.stream().map(x->x.userId).collect(Collectors.toList()));
-                            getListNews(list);
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -273,44 +272,6 @@ public class HomeActivity extends BaseActivity {
                 .addOnFailureListener(x-> Toast.makeText(this, "Unable to update token", Toast.LENGTH_SHORT).show());
     }
 
-    private void getListNews(@NonNull List<User> list){
-//        for (User users : list) {
-//
-//        }
-//        if (!isExits){
-//            listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
-//            listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
-//            newsViewModel.setListNews(listNews);
-//        }
-        reference.child(LocalDate.now().toString()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    if (listNews != null){
-                        listNews.clear();
-                    }
-                    for (DataSnapshot postSnapshot : snapshot.getChildren()){
-                        News news = postSnapshot.getValue(News.class);
-                        listNews.add(news);
-                    }
-                    listImageCurrent.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString());
-                    listNews.add(0,new News(listImageCurrent,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png",FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
-                    newsViewModel.setListNews(listNews);
-                    isExits = true;
-                }
-                else {
-                    isExits = false;
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(HomeActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
     private void addDataFirestore(){
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String,Object> data = new HashMap<>();
