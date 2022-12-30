@@ -38,6 +38,7 @@ import com.example.chatapplication.Utils.Constants;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.FragmentNewsBinding;
+import com.example.chatapplication.model.AccountViewModel;
 import com.example.chatapplication.model.News;
 import com.example.chatapplication.model.NewsViewModel;
 
@@ -48,6 +49,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -253,7 +255,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                                                     }
                                                 });
                                             }else {
-                                                News news = new News(uris, preferenceManager.getString(Constants.KEY_IMAGE), preferenceManager.getString(Constants.KEY_NAME), date);
+                                                News news = new News(uris, FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString(), preferenceManager.getString(Constants.KEY_NAME), date);
                                                 reference.keepSynced(true);
                                                 reference.child(preferenceManager.getString(Constants.KEY_USER_ID)).child(LocalDate.now().toString()).setValue(news).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override

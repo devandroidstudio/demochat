@@ -3,8 +3,11 @@ package com.example.chatapplication.Fragment.Home;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -22,6 +25,10 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.chatapplication.Listener.ICallBackNewsListener;
@@ -66,10 +73,17 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         @Override
         public void onActivityResult(ActivityResult result) {
             if (result.getResultCode() == Activity.RESULT_OK){
-                if (result.getData() != null){
+                if (result.getData() != null && user != null){
                     Uri uri = result.getData().getData();
                     preferenceManager.putString(Constants.KEY_IMAGE,uri.toString());
-//                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).updateProfile(new UserProfileChangeRequest.Builder().setPhotoUri(uri).build());
+                    user.updateProfile(new UserProfileChangeRequest.Builder().setPhotoUri(uri).build()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                AccountViewModel.url.set(Objects.requireNonNull(user.getPhotoUrl()).toString());
+                            }
+                        }
+                    });
 
                 }
             }
@@ -234,7 +248,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                             bottomSheetDialog.dismiss();
                             preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
                         }else {
-                            Toast.makeText(requireContext(), "Failure", Toast.LENGTH_SHORT).show();
+                            dialogUpdateProfile();
                         }
                     }
                 });
@@ -256,6 +270,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                             user.reload();
                             AccountViewModel.email.set(user.getEmail());
                             preferenceManager.putString(Constants.KEY_EMAIL,email);
+                        }else {
+                            dialogUpdateProfile();
                         }
                     }
                 });
@@ -273,6 +289,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                         if (task.isSuccessful()){
                             showDialogSuccess("password");
                             user.reload();
+                        }else {
+                            dialogUpdateProfile();
                         }
                     }
                 });
@@ -313,7 +331,27 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                 .setPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA)
                 .check();
     }
+    private void dialogUpdateProfile(){
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.setTitle("Please enter information login");
+        dialog.setContentView(R.layout.custom_dialog_profile);
+        Window window = dialog.getWindow();
+        window.setLayout(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
 
+        EditText editEmail = dialog.findViewById(R.id.edit_email_dialog);
+        EditText editPassword = dialog.findViewById(R.id.edit_password_dialog);
+        Button btnUpdateDialog = dialog.findViewById(R.id.btn_continues_dialog);
+        dialog.show();
+        btnUpdateDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reAuthenticate(editEmail.getText().toString(),editPassword.getText().toString());
+                dialog.dismiss();
+            }
+        });
+    }
     @Override
     public void onCallBackCamera() {
         ImagePicker.with(this)
