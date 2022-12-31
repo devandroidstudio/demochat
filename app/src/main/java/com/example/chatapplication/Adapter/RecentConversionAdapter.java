@@ -45,6 +45,13 @@ public class RecentConversionAdapter extends RecyclerView.Adapter<RecentConversi
     public void onBindViewHolder(@NonNull ConversionViewHolder holder, int position) {
         ChatMessage chatMessage = list.get(position);
         holder.binding.setConversation(chatMessage);
+        holder.binding.setType(Constants.KEY_IMAGE);
+        if (chatMessage.senderId.equals(preferenceManager.getString(Constants.KEY_USER_ID))){
+            holder.binding.setText("You sent a image");
+        }
+        else {
+            holder.binding.setText("You received a image");
+        }
         holder.binding.getRoot().setOnClickListener(v-> {
             User user = new User();
             user.userId = chatMessage.conversionId;

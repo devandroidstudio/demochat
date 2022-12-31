@@ -5,6 +5,12 @@
         <variable
             name="conversation"
             type="com.example.chatapplication.model.ChatMessage" />
+        <variable
+            name="type"
+            type="String" />
+        <variable
+            name="text"
+            type="String" />
     </data>
 
     <LinearLayout
@@ -58,7 +64,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:text="@{conversation.message}"
+                android:text="@{conversation.type.equals(type) ? text : conversation.message}"
                 android:textSize="@dimen/_12ssp"
                 android:textColor="?attr/sub_text_color"
                 android:id="@+id/txtRecentMessage"

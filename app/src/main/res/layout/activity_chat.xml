@@ -9,7 +9,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="@color/purple_700"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ChatActivity">
@@ -18,12 +18,12 @@
             android:background="@drawable/bg_content_top"
             android:layout_width="match_parent"
             android:layout_marginBottom="@dimen/_16sdp"
-            app:layout_constraintBottom_toTopOf="@id/layoutSend"
+            app:layout_constraintTop_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_height="0dp"/>
         <View
             android:id="@+id/viewAppBar"
-            android:background="#E8C2EF"
+            android:background="@drawable/bg_tool_bar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@id/viewSupporter"
@@ -49,7 +49,6 @@
             android:layout_height="wrap_content">
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/image_chat_user"
-                android:src="@drawable/cool_background"
                 android:layout_width="@dimen/_25sdp"
                 android:layout_height="@dimen/_25sdp"/>
             <View
@@ -63,7 +62,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:tint="@color/white"
             android:id="@+id/image_info"
-            android:src="@drawable/ic_baseline_info_24"
+            android:src="@drawable/ic_outline_info_24"
             android:layout_marginTop="@dimen/_12sdp"
             android:layout_marginEnd="@dimen/_16sdp"
             android:layout_marginRight="@dimen/_16sdp"
@@ -93,7 +92,7 @@
         <TextView
             android:id="@+id/text_view_status_chat_user"
             android:fontFamily="@font/acme"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_8sdp"
@@ -124,9 +123,10 @@
             android:orientation="vertical"
             android:clipToPadding="false"
             android:layout_below="@id/viewSupporter"
-            android:layout_above="@id/inputMessage"
+            android:layout_above="@id/layout_input_send"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/layout_input_send"
             app:layout_constraintBottom_toBottomOf="@id/ViewBackground"
             app:layout_constraintTop_toBottomOf="@id/viewSupporter"/>
         <ProgressBar
@@ -137,48 +137,61 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
-        <FrameLayout
-            android:id="@+id/layoutSend"
-            android:background="@drawable/bg_chat_input"
-            android:layout_marginEnd="@dimen/_16sdp"
-            android:layout_marginRight="@dimen/_16sdp"
-            android:layout_marginBottom="@dimen/_12sdp"
+        <RelativeLayout
+            android:elevation="@dimen/_50sdp"
+            android:background="@drawable/bg_input_send"
+            android:id="@+id/layout_input_send"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp">
-            <androidx.appcompat.widget.AppCompatImageView
-                android:tint="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_alignParentEnd="true"
+                app:fabSize="mini"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_round_send_24"
-                android:layout_marginStart="@dimen/_4sdp"
-                android:layout_marginLeft="@dimen/_4sdp"
-                android:padding="@dimen/_8sdp"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </FrameLayout>
+                android:backgroundTint="@color/white"
+                app:backgroundTint="@color/white"
+                android:tint="@color/white"
+                android:id="@+id/layoutSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/inputMessage"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginStart="@dimen/_16sdp"
-            android:layout_marginLeft="@dimen/_16sdp"
-            android:layout_marginEnd="@dimen/_8sdp"
-            android:layout_marginRight="@dimen/_8sdp"
-            android:layout_marginBottom="@dimen/_12sdp"
-            android:background="@drawable/bg_chat_input"
-            android:hint="Input a message"
-            android:imeOptions="actionDone"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:paddingStart="@dimen/_16sdp"
-            android:paddingEnd="@dimen/_16sdp"
-            android:selectAllOnFocus="false"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/layoutSend"
-            app:layout_constraintStart_toStartOf="parent"/>
+            <EditText
+                android:elevation="@dimen/_10sdp"
+                android:layout_centerVertical="true"
+                android:id="@+id/inputMessage"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginLeft="@dimen/_16sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:layout_marginRight="@dimen/_8sdp"
+                android:layout_marginBottom="@dimen/_12sdp"
+                android:background="@drawable/bg_chat_input"
+                android:hint="@string/input_a_message"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:selectAllOnFocus="false"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray"
+                android:fontFamily="@font/alatsi"
+                android:layout_toEndOf="@+id/btn_image_chat"
+                android:layout_toStartOf="@id/layoutSend"/>
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_centerVertical="true"
+                android:id="@+id/btn_image_chat"
+                android:layout_alignParentStart="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/picture"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"/>
+        </RelativeLayout>
+
         <TextView
             android:gravity="center"
             android:text="@string/online"

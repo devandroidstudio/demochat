@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:padding="@dimen/_20sdp"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_qr_code"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_close_dialog_qrCode"
+        app:backgroundTint="@color/white"
+        app:fabSize="mini"
+        android:src="@drawable/ic_baseline_close_24"
+        android:layout_gravity="start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:text="QrCode"
+        android:textSize="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <FrameLayout
+        android:id="@+id/layout_qrCode"
+        android:padding="@dimen/_20sdp"
+        android:background="@drawable/bg_qrcode"
+        android:layout_centerInParent="true"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="@dimen/_200sdp">
+        <com.google.android.material.card.MaterialCardView
+
+            app:cardCornerRadius="@dimen/_30sdp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/image_qrCode"
+                android:layout_margin="@dimen/_15sdp"
+                android:src="@drawable/qr_code"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</LinearLayout>

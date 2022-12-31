@@ -8,15 +8,14 @@
                     android:id="@+id/nav_my_profile"
                     android:icon="@drawable/ic_round_person_24"
                     android:title="My Profile" />
-
                 <item
                     android:id="@+id/nav_account_setting"
                     android:icon="@drawable/ic_baseline_settings_24"
                     android:title="My Setting" />
                 <item
-                    android:id="@+id/nav_time_sheet"
-                    android:icon="@drawable/ic_baseline_access_time_24"
-                    android:title="DateTime" />
+                    android:id="@+id/nav_qrCode"
+                    android:icon="@drawable/qr_code"
+                    android:title="QrCode" />
             </group>
 
         </menu>

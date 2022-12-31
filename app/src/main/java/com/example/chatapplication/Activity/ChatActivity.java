@@ -1,30 +1,47 @@
 package com.example.chatapplication.Activity;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.chatapplication.Adapter.ChatAdapter;
+import com.example.chatapplication.Fragment.Home.ProfileFragment;
+import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.Network.ApiClient;
 import com.example.chatapplication.Network.ApiService;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Utils.Constants;
+import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
+import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.ActivityChatBinding;
 import com.example.chatapplication.model.ChatMessage;
 import com.example.chatapplication.model.TimeDifference;
 import com.example.chatapplication.model.User;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -45,7 +62,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatActivity extends BaseActivity {
+public class ChatActivity extends BaseActivity implements ICallBackNewsListener {
     private ActivityChatBinding binding;
     private User receiverUser;
     private List<ChatMessage> chatMessages;
@@ -55,6 +72,33 @@ public class ChatActivity extends BaseActivity {
     private Boolean isReceiverAvailable = false;
     private ChatAdapter adapter;
     private String time = "";
+    private static final StorageReference storageReference = FirebaseStorage.getInstance().getReference("Images");
+    private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK){
+                if (result.getData() != null){
+                    Uri uri = result.getData().getData();
+                    final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(uri,ChatActivity.this));
+                    fileRef.putFile(result.getData().getData()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()){
+                                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        sendMessage(Constants.KEY_IMAGE,uri.toString());
+                                    }
+                                });
+                            }
+                        }
+                    }).addOnFailureListener(e -> Toast.makeText(ChatActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+
+                }
+            }
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,11 +115,14 @@ public class ChatActivity extends BaseActivity {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v-> {
           if (binding.inputMessage.getText().length() >0){
-              sendMessage();
+              sendMessage(Constants.KEY_TEXT,binding.inputMessage.getText().toString());
           }else {
               return;
           }
         } );
+        binding.btnImageChat.setOnClickListener(v -> {
+            ShowCameraGallery.selectImageFromGallery(ChatActivity.this,this);
+        });
     }
 
     private void init(){
@@ -150,6 +197,7 @@ public class ChatActivity extends BaseActivity {
                     chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
                     chatMessage.dateTime = getReadableDateTime(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    chatMessage.type = documentChange.getDocument().getString(Constants.KEY_TYPE);
                     chatMessages.add(chatMessage);
                 }
             }
@@ -168,15 +216,16 @@ public class ChatActivity extends BaseActivity {
             checkForConversion();
         }
     };
-    private void sendMessage(){
+    private void sendMessage(String type, String inputMessage){
         HashMap<String,Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID,receiverUser.userId);
-        message.put(Constants.KEY_MESSAGE,binding.inputMessage.getText().toString());
+        message.put(Constants.KEY_MESSAGE,inputMessage);
         message.put(Constants.KEY_TIMESTAMP, new Date());
+        message.put(Constants.KEY_TYPE,type);
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
         if (conversionId !=null){
-            updateConversion(binding.inputMessage.getText().toString());
+            updateConversion(inputMessage, type);
         }else {
             HashMap<String,Object> conversion = new HashMap<>();
             conversion.put(Constants.KEY_SENDER_ID,preferenceManager.getString(Constants.KEY_USER_ID));
@@ -187,6 +236,7 @@ public class ChatActivity extends BaseActivity {
             conversion.put(Constants.KEY_RECEIVER_IMAGE,receiverUser.image);
             conversion.put(Constants.KEY_LAST_MESSAGE,binding.inputMessage.getText().toString());
             conversion.put(Constants.KEY_TIMESTAMP,new Date());
+            conversion.put(Constants.KEY_TYPE,type);
             addConversion(conversion);
         }
         if (!isReceiverAvailable){
@@ -253,9 +303,9 @@ public class ChatActivity extends BaseActivity {
                 .add(conversion)
                 .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
     }
-    private void updateConversion(String message){
+    private void updateConversion(String message, String type){
         DocumentReference documentReference = database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(conversionId);
-        documentReference.update(Constants.KEY_LAST_MESSAGE,message,Constants.KEY_TIMESTAMP,new Date());
+        documentReference.update(Constants.KEY_LAST_MESSAGE,message,Constants.KEY_TIMESTAMP,new Date(), Constants.KEY_TYPE,type);
     }
     private void checkForConversion(){
         if (chatMessages.size() !=0){
@@ -284,5 +334,27 @@ public class ChatActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         listenAvailabilityOfReceiver();
+    }
+
+    @Override
+    public void onCallBackCamera() {
+        ImagePicker.with(this)
+                .cameraOnly()
+                .crop()
+                .createIntent(intent -> {
+                    startForProfileImageResult.launch(intent);
+                    return null;
+                });
+    }
+
+    @Override
+    public void onCallBackGallery() {
+        ImagePicker.with(this)
+                .galleryOnly()
+                .crop()
+                .createIntent(intent -> {
+                    startForProfileImageResult.launch(intent);
+                    return null;
+                });
     }
 }

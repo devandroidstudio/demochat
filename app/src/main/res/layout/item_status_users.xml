@@ -19,7 +19,6 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 imageUrl="@{user.image}"
                 android:id="@+id/image_status_user_chat"
-                android:src="@drawable/cool_background"
                 android:layout_width="50dp"
                 android:layout_height="50dp" />
 

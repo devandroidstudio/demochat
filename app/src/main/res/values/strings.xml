@@ -35,4 +35,5 @@
     <string name="username">Username</string>
     <string name="save">Save</string>
     <string name="pass">***********</string>
+    <string name="input_a_message">Input a message</string>
 </resources>

@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.chatapplication.Listener.ICallBackNewsListener;
+import com.example.chatapplication.MainActivity;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Utils.Constants;
 import com.example.chatapplication.Utils.FileExtension;
@@ -44,6 +45,7 @@ import com.example.chatapplication.model.AccountViewModel;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
@@ -53,6 +55,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -116,7 +119,33 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
 
     private void onAction() {
         binding.fabEditProfile.setOnClickListener(view -> requestPermission());
-        binding.btnLogout.setOnClickListener(v -> FirebaseAuth.getInstance().signOut());
+        binding.btnLogout.setOnClickListener(v -> signOut());
+    }
+    private void signOut(){
+      if (user != null){
+          Toast.makeText(requireContext(), "Signing out...", Toast.LENGTH_SHORT).show();
+          HashMap<String,Object> updates = new HashMap<>();
+          updates.put(Constants.KEY_FCM_TOKEN, FieldValue.delete());
+          FirebaseFirestore database = FirebaseFirestore.getInstance();
+          database.collection(Constants.KEY_COLLECTION_USERS)
+                  .document(user.getUid())
+                  .update(updates)
+                  .addOnSuccessListener(new OnSuccessListener<Void>() {
+                      @Override
+                      public void onSuccess(Void unused) {
+                          FirebaseAuth.getInstance().signOut();
+                          startActivity(new Intent(requireContext(), MainActivity.class));
+                          requireActivity().finish();
+                      }
+                  }).addOnFailureListener(new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+                          Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                      }
+                  });
+      }
+
+
     }
 
     @Override

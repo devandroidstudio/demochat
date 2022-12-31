@@ -32,6 +32,8 @@ public class Constants {
     public static final String REMOTE_MSG_REGISTRATION_IDS = "registration_ids";
     public static final String KEY_DATE = "date_off";
     public static final Integer MAX_PROGRESS = 50;
+    public static final String KEY_TYPE = "type";
+    public static final String KEY_TEXT = "text";
     public static HashMap<String,String> remoteMsgHeaders = null;
     public static HashMap<String,String> getRemoteMsgHeaders(){
         if (remoteMsgHeaders == null){

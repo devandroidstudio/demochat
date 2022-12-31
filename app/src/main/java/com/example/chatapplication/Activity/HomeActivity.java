@@ -9,11 +9,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +79,7 @@ public class HomeActivity extends BaseActivity {
     private static List<News> listNews;
     private static final List<String> listImageCurrent = new ArrayList<>();
     private static Boolean isExits = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +109,9 @@ public class HomeActivity extends BaseActivity {
                 switch (item.getItemId()){
                     case R.id.nav_my_profile:
                         break;
-
+                    case R.id.nav_qrCode:
+                        showQrCodeDialog();
+                        break;
                 }
                 binding.drawerLayoutHome.closeDrawer(GravityCompat.START);
                 return true;
@@ -114,6 +122,21 @@ public class HomeActivity extends BaseActivity {
         animateNavigationDrawer();
 
     }
+
+    private void showQrCodeDialog() {
+        final Dialog dialogQrCode = new Dialog(this);
+        dialogQrCode.setContentView(R.layout.layout_dialog_qrcode);
+        Window window = dialogQrCode.getWindow();
+        window.setLayout(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialogQrCode.setCancelable(true);
+        dialogQrCode.findViewById(R.id.btn_close_dialog_qrCode).setOnClickListener(v ->{
+            dialogQrCode.dismiss();
+        });
+        ImageView imageView = dialogQrCode.findViewById(R.id.image_qrCode);
+        dialogQrCode.show();
+    }
+
     private void animateNavigationDrawer() {
         binding.drawerLayoutHome.setScrimColor(getResources().getColor(R.color.purple_200));
         binding.drawerLayoutHome.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -216,6 +239,7 @@ public class HomeActivity extends BaseActivity {
 
             }
         });
+
     }
     @NonNull
     private List<Fragment> getListFragment(){

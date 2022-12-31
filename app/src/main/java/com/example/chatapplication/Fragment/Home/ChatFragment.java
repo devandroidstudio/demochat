@@ -164,6 +164,7 @@ public class ChatFragment extends Fragment implements ConversionListener {
                     }
                     chatMessage.message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    chatMessage.type = documentChange.getDocument().getString(Constants.KEY_TYPE);
                     conversations.add(chatMessage);
                 } else if (documentChange.getType() == DocumentChange.Type.MODIFIED){
                     for (int i = 0; i < conversations.size(); i++) {
@@ -172,6 +173,7 @@ public class ChatFragment extends Fragment implements ConversionListener {
                         if (conversations.get(i).senderId.equals(senderId) && conversations.get(i).receiverId.equals(receiverId)){
                             conversations.get(i).message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                             conversations.get(i).dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                            conversations.get(i).type = documentChange.getDocument().getString(Constants.KEY_TYPE);
                             break;
                         }
 

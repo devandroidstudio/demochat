@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -13,9 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <ImageView
             android:elevation="@dimen/_5sdp"
-            android:id="@+id/txtMessage"
+            android:id="@+id/imageMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -23,19 +23,17 @@
             app:layout_constraintWidth_percent="0.8"
             app:layout_constraintWidth_max="wrap"
             android:background="@drawable/bg_sent_message"
-            android:padding="@dimen/_8sdp"
-            android:textColor="@color/white"
-
-            android:textSize="@dimen/_13ssp" />
+            android:padding="@dimen/_10sdp" />
 
         <TextView
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtMessage"
+            app:layout_constraintTop_toBottomOf="@id/imageMessage"
             android:textColor="@color/black"
             android:textSize="@dimen/_8ssp"
             android:id="@+id/txtDatetime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

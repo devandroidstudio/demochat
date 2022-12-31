@@ -8,7 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapplication.R;
+import com.example.chatapplication.Utils.Constants;
 import com.example.chatapplication.databinding.ItemContainerSentMessageBinding;
+import com.example.chatapplication.databinding.ItemContainnerReceivedImageMessageBinding;
+import com.example.chatapplication.databinding.ItemContainnerSentImageMessageBinding;
 import com.example.chatapplication.databinding.ItemContanerReceivedMessageBinding;
 import com.example.chatapplication.model.ChatMessage;
 import com.squareup.picasso.Picasso;
@@ -18,7 +21,7 @@ import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<ChatMessage> list = new ArrayList<>();
-    String image, senderId;
+    String image, senderId, type;
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
     public static Boolean check = false;
@@ -34,9 +37,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         if (list.get(position).senderId.equals(senderId)){
+            type = list.get(position).type;
             return VIEW_TYPE_SENT;
         }
         else {
+            type = list.get(position).type;
             return VIEW_TYPE_RECEIVED;
         }
 
@@ -46,18 +51,32 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_SENT){
-            return new SendMessageViewHolder(ItemContainerSentMessageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            if (type.equals(Constants.KEY_TEXT)){
+                return new SendMessageViewHolder(ItemContainerSentMessageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            }
+            return new SendMessageImageViewHolder(ItemContainnerSentImageMessageBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }else {
-            return new ReceivedMessageViewHolder(ItemContanerReceivedMessageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            if (type.equals(Constants.KEY_TEXT)){
+                return new ReceivedMessageViewHolder(ItemContanerReceivedMessageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            }
+            return new ReceivedMessageImageViewHolder(ItemContainnerReceivedImageMessageBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE_SENT){
-            ((SendMessageViewHolder) holder).setData(list.get(position));
+            if (type.equals(Constants.KEY_TEXT)){
+                ((SendMessageViewHolder) holder).setData(list.get(position));
+            }else if (type.equals(Constants.KEY_IMAGE)){
+                ((SendMessageImageViewHolder) holder).setData(list.get(position));
+            }
         }else {
-            ((ReceivedMessageViewHolder) holder).setData(list.get(position),image);
+            if (type.equals(Constants.KEY_TEXT)){
+                ((ReceivedMessageViewHolder) holder).setData(list.get(position),image);
+            }else if (type.equals(Constants.KEY_IMAGE)){
+                ((ReceivedMessageImageViewHolder) holder).setData(list.get(position),image);
+            }
         }
     }
 
@@ -85,6 +104,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         }
     }
+    public static class SendMessageImageViewHolder extends RecyclerView.ViewHolder{
+        private final ItemContainnerSentImageMessageBinding binding;
+
+        public SendMessageImageViewHolder(ItemContainnerSentImageMessageBinding itemContainnerSentImageMessageBinding) {
+            super(itemContainnerSentImageMessageBinding.getRoot());
+            this.binding = itemContainnerSentImageMessageBinding;
+        }
+        void setData(ChatMessage chatMessage){
+            Picasso.get().load(chatMessage.message).into(binding.imageMessage);
+            binding.txtDatetime.setText(chatMessage.dateTime);
+        }
+    }
 
     public static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder{
         private final ItemContanerReceivedMessageBinding binding;
@@ -107,6 +138,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     binding.txtDatetime.setVisibility(View.GONE);
                 }
             });
+        }
+    }
+    public static class ReceivedMessageImageViewHolder extends RecyclerView.ViewHolder{
+        private final ItemContainnerReceivedImageMessageBinding binding;
+
+        public ReceivedMessageImageViewHolder(ItemContainnerReceivedImageMessageBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+        void setData(ChatMessage chatMessage, String image){
+            Picasso.get().load(chatMessage.message).into(binding.imageMessage);
+            binding.txtDatetime.setText(chatMessage.dateTime);
+            if (image != null){
+                Picasso.get().load(image).placeholder(R.drawable.ic_launcher_foreground).into(binding.imageProfile);
+            }
         }
     }
 }
