@@ -189,12 +189,10 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                         time = value.getString(Constants.KEY_DATE);
                     }
                     if (isReceiverAvailable){
-//                        binding.txtAvailability.setVisibility(View.VISIBLE);
                         binding.viewStatusChat.setVisibility(View.VISIBLE);
                         binding.textViewStatusChatUser.setVisibility(View.GONE);
                         preferenceManager.remove(Constants.KEY_DATE);
                     }else {
-//                        binding.txtAvailability.setVisibility(View.GONE);
                         binding.viewStatusChat.setVisibility(View.GONE);
                         binding.textViewStatusChatUser.setVisibility(View.VISIBLE);
                         if (preferenceManager.getString(Constants.KEY_DATE) == null){
@@ -279,7 +277,7 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                 data.put(Constants.KEY_USER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
                 data.put(Constants.KEY_NAME, preferenceManager.getString(Constants.KEY_NAME));
                 data.put(Constants.KEY_FCM_TOKEN,preferenceManager.getString(Constants.KEY_FCM_TOKEN));
-                data.put(Constants.KEY_MESSAGE,binding.inputMessage.getText().toString());
+                data.put(Constants.KEY_MESSAGE,inputMessage);
                 JSONObject body = new JSONObject();
                 body.put(Constants.REMOTE_MSG_DATA,data);
                 body.put(Constants.REMOTE_MSG_REGISTRATION_IDS,tokens);

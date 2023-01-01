@@ -114,6 +114,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void setData(ChatMessage chatMessage){
             Picasso.get().load(chatMessage.message).into(binding.imageMessage);
             binding.txtDatetime.setText(chatMessage.dateTime);
+            binding.imageMessage.setOnClickListener(v ->{
+                check = !check;
+                if (check){
+                    binding.txtDatetime.setVisibility(View.VISIBLE);
+                }else {
+                    binding.txtDatetime.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
@@ -153,6 +161,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (image != null){
                 Picasso.get().load(image).placeholder(R.drawable.ic_launcher_foreground).into(binding.imageProfile);
             }
+            binding.imageMessage.setOnClickListener(v ->{
+                check = !check;
+                if (check){
+                    binding.txtDatetime.setVisibility(View.VISIBLE);
+                }else {
+                    binding.txtDatetime.setVisibility(View.GONE);
+                }
+            });
         }
     }
 }
