@@ -173,14 +173,14 @@ public class HomeActivity extends BaseActivity {
         CircleImageView imageView = binding.navViewHome.getHeaderView(0).findViewById(R.id.image_user_header);
         if (user != null) {
             for (UserInfo profile : user.getProviderData()) {
-                txtName.setText(profile.getDisplayName());
-                txtEmail.setText(profile.getEmail());
+
                 AccountViewModel.url.set(profile.getPhotoUrl()== null ? preferenceManager.getString(Constants.KEY_IMAGE) : profile.getPhotoUrl().toString());
                 AccountViewModel.displayName.set(profile.getDisplayName());
                 AccountViewModel.email.set(profile.getEmail());
             }
         }
-
+        txtName.setText(AccountViewModel.displayName.get());
+        txtEmail.setText(AccountViewModel.email.get());
         Picasso.get().load(AccountViewModel.url.get()).placeholder(R.drawable.ic_baseline_person_pin_24).error(R.drawable.cool_background).into(imageView);
         viewModel = new ViewModelProvider(this).get(UserViewModel.class);
         newsViewModel = new ViewModelProvider(this).get(NewsViewModel.class);

@@ -156,6 +156,14 @@
                 android:id="@+id/layoutSend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+            <ImageButton
+                android:id="@+id/btn_voice_chat"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_baseline_keyboard_voice_24"
+                android:background="@android:color/transparent"
+                android:layout_toStartOf="@id/layoutSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <EditText
                 android:elevation="@dimen/_10sdp"
@@ -165,7 +173,6 @@
                 android:layout_height="@dimen/_35sdp"
                 android:layout_marginStart="@dimen/_5sdp"
                 android:layout_marginLeft="@dimen/_16sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
                 android:layout_marginRight="@dimen/_8sdp"
                 android:layout_marginBottom="@dimen/_12sdp"
                 android:background="@drawable/bg_chat_input"
@@ -180,7 +187,7 @@
                 android:textColorHint="@color/gray"
                 android:fontFamily="@font/alatsi"
                 android:layout_toEndOf="@+id/btn_image_chat"
-                android:layout_toStartOf="@id/layoutSend"/>
+                android:layout_toStartOf="@id/btn_voice_chat"/>
             <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_marginStart="@dimen/_10sdp"
                 android:layout_centerVertical="true"
@@ -199,7 +206,7 @@
             android:padding="@dimen/_2sdp"
             android:textSize="@dimen/_10ssp"
             android:textColor="@color/white"
-            android:background="#8BC34A"
+            android:background="@color/gray"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

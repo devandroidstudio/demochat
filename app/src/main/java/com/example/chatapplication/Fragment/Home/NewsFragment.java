@@ -120,7 +120,6 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                 if (result.getData() != null){
                    list.add(0,result.getData().getData());
                     showDialogResult(list);
-
                 }
             }
         }
@@ -146,23 +145,21 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         binding.rcvNews.setLayoutManager(new GridLayoutManager(requireContext(),2, LinearLayoutManager.VERTICAL,false));
         binding.rcvNews.setItemAnimator(new DefaultItemAnimator());
         binding.rcvNews.setHasFixedSize(true);
-        AccountViewModel.url.set(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
-
         return binding.getRoot();
     }
     private void getData(){
-
         reference.child(LocalDate.now().toString()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (newsList != null){
                     newsList.clear();
                 }
+                listImageCurrent2.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : AccountViewModel.url.get());
+                newsList.add(0,new News(listImageCurrent2,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png","Add a news"));
                 for (DataSnapshot postSnapshot : snapshot.getChildren()){
                     News news = postSnapshot.getValue(News.class);
                     if (news != null && news.userId.equals(preferenceManager.getString(Constants.KEY_USER_ID))){
                         strNews = postSnapshot.getKey();
-
                     }
                     newsList.add(news);
                 }
@@ -171,8 +168,6 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                 }else {
                     loading(false);
                     binding.rcvNews.setVisibility(View.VISIBLE);
-                    listImageCurrent2.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl() == null ? preferenceManager.getString(Constants.KEY_IMAGE) : AccountViewModel.url.get());
-                    newsList.add(0,new News(listImageCurrent2,"https://cdn-icons-png.flaticon.com/512/3024/3024515.png","Add a news"));
                     adapter = new NewsAdapter(newsList, getContext(), NewsFragment.this);
                     binding.rcvNews.setAdapter(adapter);
                     adapter.notifyItemRangeInserted(0,newsList.size());
@@ -263,73 +258,45 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                 progressDialog.show();
                 for (int i = 0; i < list.size(); i++) {
                     final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(list.get(i),requireActivity()));
-                    fileRef.putFile(list.get(i)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()){
-                                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        uris.add(String.valueOf(uri));
-                                        if (uris.size() == list.size()){
-                                            listImageCurrent.addAll(uris);
-                                            System.out.println(listImageCurrent.toString());
-                                            if (isExits){
-                                                Map<String,Object> result = new HashMap<>();
-                                                result.put("resource",listImageCurrent);
-                                                result.put("date",date);
-                                                reference.child(LocalDate.now().toString()).child(strNews).updateChildren(result, new DatabaseReference.CompletionListener() {
-                                                    @Override
-                                                    public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
-                                                        Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show();
-                                                        progressDialog.dismiss();
-                                                        bottomSheetDialog.dismiss();
-                                                        listImageCurrent.clear();
-                                                    }
-                                                });
-                                            }else {
-                                                News news = new News(uris,AccountViewModel.url.get(), preferenceManager.getString(Constants.KEY_NAME), date, preferenceManager.getString(Constants.KEY_USER_ID));
-                                                reference.keepSynced(true);
-                                                reference.child(LocalDate.now().toString()).push().setValue(news).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            progressDialog.dismiss();
-                                                            bottomSheetDialog.dismiss();
-                                                            uris.clear();
-                                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                                                            builder.setTitle(R.string.notification);
-                                                            builder.setMessage(R.string.success);
-                                                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialog, int which) {
-                                                                    dialog.dismiss();
-
-                                                                }
-                                                            });
-                                                            AlertDialog alertDialog = builder.create();
-                                                            alertDialog.show();
-                                                        }
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
+                    fileRef.putFile(list.get(i)).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                uris.add(String.valueOf(uri));
+                                if (uris.size() == list.size()){
+                                    listImageCurrent.addAll(uris);
+                                    System.out.println(listImageCurrent.toString());
+                                    if (isExits){
+                                        Map<String,Object> result = new HashMap<>();
+                                        result.put("resource",listImageCurrent);
+                                        result.put("date",date);
+                                        reference.child(LocalDate.now().toString()).child(strNews).updateChildren(result, (error, ref) -> {
+                                            Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show();
+                                            progressDialog.dismiss();
+                                            bottomSheetDialog.dismiss();
+                                            listImageCurrent.clear();
+                                        });
+                                    }else {
+                                        News news = new News(uris,AccountViewModel.url.get(), preferenceManager.getString(Constants.KEY_NAME), date, preferenceManager.getString(Constants.KEY_USER_ID));
+                                        reference.keepSynced(true);
+                                        reference.child(LocalDate.now().toString()).push().setValue(news).addOnCompleteListener(task1 -> {
+                                            if (task1.isSuccessful()) {
+                                                progressDialog.dismiss();
+                                                bottomSheetDialog.dismiss();
+                                                uris.clear();
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                                builder.setTitle(R.string.notification);
+                                                builder.setMessage(R.string.success);
+                                                builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
+                                                AlertDialog alertDialog = builder.create();
+                                                alertDialog.show();
                                             }
-
-                                        }
+                                        }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
                                     }
-                                });
-                            }
+
+                                }
+                            });
                         }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
 
             }

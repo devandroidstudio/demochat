@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.Network.ApiClient;
 import com.example.chatapplication.Network.ApiService;
 import com.example.chatapplication.R;
+import com.example.chatapplication.Utils.CheckConnection;
 import com.example.chatapplication.Utils.Constants;
 import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
@@ -98,17 +100,37 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
             }
         }
     });
-
+    private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK){
+                if (result.getData() != null){
+                    ArrayList<String> strResult = result.getData().getStringArrayListExtra(
+                            RecognizerIntent.EXTRA_RESULTS);
+                    binding.inputMessage.setText(
+                            Objects.requireNonNull(strResult).get(0));
+                }
+            }
+        }
+    });
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.MATCH_PARENT);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setListeners();
-        loadReceiverDetails();
-        init();
-        listenMessages();
+
+        if (CheckConnection.haveNetworkConnection(this)){
+            binding.txtAvailability.setVisibility(View.GONE);
+            setListeners();
+            loadReceiverDetails();
+            init();
+            listenMessages();
+        }else {
+            binding.txtAvailability.setVisibility(View.VISIBLE);
+            binding.txtAvailability.setText("Please turn on wifi");
+            CheckConnection.ShowToast_Short(this);
+        }
     }
 
     private void setListeners() {
@@ -122,6 +144,16 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
         } );
         binding.btnImageChat.setOnClickListener(v -> {
             ShowCameraGallery.selectImageFromGallery(ChatActivity.this,this);
+        });
+        binding.btnVoiceChat.setOnClickListener(v->{
+            Intent intent
+                    = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+                    Locale.getDefault());
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, R.string.string_voice_chat);
+            resultLauncher.launch(intent);
         });
     }
 
@@ -157,12 +189,12 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                         time = value.getString(Constants.KEY_DATE);
                     }
                     if (isReceiverAvailable){
-                        binding.txtAvailability.setVisibility(View.VISIBLE);
+//                        binding.txtAvailability.setVisibility(View.VISIBLE);
                         binding.viewStatusChat.setVisibility(View.VISIBLE);
                         binding.textViewStatusChatUser.setVisibility(View.GONE);
                         preferenceManager.remove(Constants.KEY_DATE);
                     }else {
-                        binding.txtAvailability.setVisibility(View.GONE);
+//                        binding.txtAvailability.setVisibility(View.GONE);
                         binding.viewStatusChat.setVisibility(View.GONE);
                         binding.textViewStatusChatUser.setVisibility(View.VISIBLE);
                         if (preferenceManager.getString(Constants.KEY_DATE) == null){
@@ -243,7 +275,6 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
             try {
                 JSONArray tokens = new JSONArray();
                 tokens.put(receiverUser.fcmToken);
-
                 JSONObject data = new JSONObject();
                 data.put(Constants.KEY_USER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
                 data.put(Constants.KEY_NAME, preferenceManager.getString(Constants.KEY_NAME));
@@ -333,7 +364,10 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
     @Override
     protected void onResume() {
         super.onResume();
-        listenAvailabilityOfReceiver();
+        if (CheckConnection.haveNetworkConnection(this)){
+            listenAvailabilityOfReceiver();
+        }else
+            CheckConnection.ShowToast_Short(this);
     }
 
     @Override
