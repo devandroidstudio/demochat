@@ -8,8 +8,8 @@
             type="com.example.chatapplication.model.User" />
         <import type="android.view.View"/>
     </data>
-
     <RelativeLayout
+        android:layout_marginBottom="@dimen/_10sdp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -21,7 +21,6 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 imageUrl="@{users.image}"
                 android:id="@+id/image_status_user"
-                android:src="@drawable/cool_background"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
 

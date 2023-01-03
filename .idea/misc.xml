@@ -53,6 +53,12 @@
         <entry key="..\:/android/ChatApplication/app/src/main/res/layout/layout_header.xml" value="0.4" />
         <entry key="..\:/android/ChatApplication/app/src/main/res/menu/menu_drawer.xml" value="0.1" />
         <entry key="..\:/android/ChatApplication/app/src/main/res/menu/menu_root.xml" value="0.3625" />
+        <entry key="app/src/main/res/drawable/bg_bottom_sheet.xml" value="0.1645" />
+        <entry key="app/src/main/res/layout/dialog_verification.xml" value="0.15520833333333334" />
+        <entry key="app/src/main/res/layout/fragment_contact.xml" value="0.15520833333333334" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.36776936848958336" />
+        <entry key="app/src/main/res/layout/item_contact_user.xml" value="0.15520833333333334" />
+        <entry key="app/src/main/res/layout/layout_bottom_sheet_profile.xml" value="0.30512820512820515" />
       </map>
     </option>
   </component>

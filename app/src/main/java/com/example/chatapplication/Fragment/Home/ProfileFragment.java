@@ -30,6 +30,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapplication.Listener.ICallBackNewsListener;
@@ -43,6 +44,9 @@ import com.example.chatapplication.Validation.Validation;
 import com.example.chatapplication.databinding.FragmentProfileBinding;
 import com.example.chatapplication.model.AccountViewModel;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -113,6 +117,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         binding.layoutPass.setOnClickListener(this);
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Uploading...");
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext());
+        if (account != null){
+            binding.layoutPass.setVisibility(View.GONE);
+            System.out.println(account.getDisplayName()+account.getEmail());
+        }
         onAction();
         return binding.getRoot();
     }
@@ -122,6 +131,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         binding.btnLogout.setOnClickListener(v -> signOut());
     }
     private void signOut(){
+        GoogleSignIn.getClient(requireContext(),new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()).signOut();
       if (user != null){
           Toast.makeText(requireContext(), "Signing out...", Toast.LENGTH_SHORT).show();
           HashMap<String,Object> updates = new HashMap<>();
@@ -156,9 +166,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         bottomSheetDialog.show();
         viewDialog.findViewById(R.id.btn_close_edit_profile).setOnClickListener(view -> bottomSheetDialog.dismiss());
         AppCompatButton button = viewDialog.findViewById(R.id.btn_save);
+        TextView textView = viewDialog.findViewById(R.id.text_View_Change);
         TextInputLayout textInputLayout;
         if (v.getId() == R.id.layout_username){
             textInputLayout = viewDialog.findViewById(R.id.edit_full_name_profile);
+            textView.setText(R.string.change_username);
             textInputLayout.setVisibility(View.VISIBLE);
             TextInputEditText textInputEditText = viewDialog.findViewById(R.id.text_fullName_profile);
             textInputEditText.setText(AccountViewModel.displayName.get());
@@ -186,6 +198,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
             button.setOnClickListener(v1 -> updateDisplayName(Objects.requireNonNull(textInputEditText.getText()).toString(),bottomSheetDialog));
         }else if (v.getId() == R.id.layout_email){
             textInputLayout = viewDialog.findViewById(R.id.edit_email_profile);
+            textView.setText(R.string.change_email);
             textInputLayout.setVisibility(View.VISIBLE);
             TextInputEditText textInputEditText = viewDialog.findViewById(R.id.text_edit_email_profile);
             textInputEditText.setText(AccountViewModel.email.get());
@@ -216,6 +229,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
             button.setOnClickListener(v1 -> updateEmail(Objects.requireNonNull(textInputEditText.getText()).toString()));
         }else if (v.getId() == R.id.layout_pass){
             textInputLayout = viewDialog.findViewById(R.id.edit_password_profile);
+            textView.setText(R.string.change_password);
             textInputLayout.setVisibility(View.VISIBLE);
             TextInputEditText textInputEditText = viewDialog.findViewById(R.id.text_edit_password_profile);
             textInputEditText.addTextChangedListener(new TextWatcher() {
@@ -254,7 +268,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                 user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
                         showDialogSuccess("Update username is success");
-                        user.reload();
                         AccountViewModel.displayName.set(user.getDisplayName());
                         bottomSheetDialog.dismiss();
                         preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());

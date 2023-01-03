@@ -5,7 +5,9 @@
     android:animateLayoutChanges="true">
 
     <data>
-
+        <variable
+            name="call"
+            type="com.example.chatapplication.model.CallViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -59,18 +61,35 @@
                 android:layout_width="@dimen/_12sdp"
                 android:layout_height="@dimen/_12sdp"/>
         </FrameLayout>
-        <androidx.appcompat.widget.AppCompatImageView
-            android:tint="@color/white"
-            android:id="@+id/image_info"
-            android:src="@drawable/ic_outline_info_24"
+        <LinearLayout
             android:layout_marginTop="@dimen/_12sdp"
             android:layout_marginEnd="@dimen/_16sdp"
             android:layout_marginRight="@dimen/_16sdp"
             android:padding="@dimen/_4sdp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_30sdp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="horizontal"
+            android:id="@+id/layout_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:onClick="@{() -> call.onClickVoiceCall()}"
+                android:id="@+id/btn_voice_call"
+                android:layout_marginEnd="@dimen/_10sdp"
+                app:tint="@color/white"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_baseline_local_phone_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:onClick="@{() -> call.onClickVideoCall()}"
+                android:id="@+id/btn_video_call"
+                app:tint="@color/white"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_baseline_videocam_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <TextView
             android:fontFamily="@font/acme"
@@ -85,7 +104,7 @@
             android:maxLines="1"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/image_info"
+            app:layout_constraintEnd_toStartOf="@id/layout_call"
             app:layout_constraintStart_toEndOf="@id/layout_chat_image_status"
             app:layout_constraintTop_toTopOf="@id/image_back" />
 
@@ -101,7 +120,7 @@
             android:textSize="@dimen/_10ssp"
             android:textColor="?attr/sub_text_color"
             app:layout_constraintBottom_toBottomOf="@id/layout_chat_image_status"
-            app:layout_constraintEnd_toStartOf="@id/image_info"
+            app:layout_constraintEnd_toStartOf="@id/layout_call"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/layout_chat_image_status"
             app:layout_constraintTop_toBottomOf="@id/textName" />

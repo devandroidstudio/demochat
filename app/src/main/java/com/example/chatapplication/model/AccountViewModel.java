@@ -13,5 +13,5 @@ public class AccountViewModel {
     public static ObservableField<String> email = new ObservableField<>();
     public static ObservableField<String> url = new ObservableField<>();
     public static ObservableField<String> displayName = new ObservableField<>();
-
+    public static ObservableField<Integer> available = new ObservableField<>();
 }

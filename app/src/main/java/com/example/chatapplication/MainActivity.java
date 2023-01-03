@@ -16,6 +16,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -24,6 +25,8 @@ import com.example.chatapplication.Adapter.RootAdapter;
 import com.example.chatapplication.Fragment.Login.SignInFragment;
 import com.example.chatapplication.Fragment.Login.SignUpFragment;
 import com.example.chatapplication.Transform.ZoomOutPageTransformer;
+import com.example.chatapplication.Utils.Constants;
+import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.databinding.ActivityMainBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -39,8 +42,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInOptions gso;
     FirebaseAuth mAuth;
     ProgressDialog progressDialog;
+    PreferenceManager preferenceManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         applyTheme();
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         binding.setLifecycleOwner(this);
         mAuth = FirebaseAuth.getInstance();
+        preferenceManager = new PreferenceManager(this);
         RootAdapter adapter = new RootAdapter(getSupportFragmentManager(),getLifecycle(),getListFragment());
         binding.viewPager2Root.setAdapter(adapter);
         binding.viewPager2Root.setPageTransformer(new ZoomOutPageTransformer());
@@ -109,11 +116,35 @@ public class MainActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if(task.isSuccessful())
                                         {
-                                            startActivity(new Intent(MainActivity.this
-                                                    ,HomeActivity.class)
-                                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                                            displayToast("Firebase authentication successful");
-                                            progressDialog.dismiss();
+                                            FirebaseFirestore database = FirebaseFirestore.getInstance();
+                                            FirebaseUser user = task.getResult().getUser();
+                                            if (user != null){
+                                                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN,true);
+                                                preferenceManager.putString(Constants.KEY_USER_ID, Objects.requireNonNull(user).getUid());
+                                                preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
+                                                preferenceManager.putString(Constants.KEY_IMAGE, Objects.requireNonNull(user.getPhotoUrl()).toString());
+                                                preferenceManager.putString(Constants.KEY_EMAIL,user.getEmail());
+                                                HashMap<String,Object> data = new HashMap<>();
+                                                data.put(Constants.KEY_EMAIL,user.getEmail());
+                                                data.put(Constants.KEY_NAME,user.getDisplayName());
+                                                data.put(Constants.KEY_IMAGE,user.getPhotoUrl().toString());
+                                                data.put(Constants.KEY_AVAILABILITY,0);
+                                                database.collection(Constants.KEY_COLLECTION_USERS)
+                                                        .document(user.getUid())
+                                                        .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                startActivity(new Intent(MainActivity.this
+                                                                        ,HomeActivity.class)
+                                                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                                                                displayToast("Firebase authentication successful");
+                                                                progressDialog.dismiss();
+                                                            }
+                                                        });
+
+                                            }
+
+
                                         }
                                         else
                                         {

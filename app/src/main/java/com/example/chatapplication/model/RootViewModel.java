@@ -26,6 +26,7 @@ import com.example.chatapplication.Validation.Validation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
@@ -202,10 +203,16 @@ public class RootViewModel {
                                @Override
                                public void onComplete(@NonNull Task<Void> task) {
                                    if (task.isSuccessful()){
+                                       preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN,true);
+                                       preferenceManager.putString(Constants.KEY_USER_ID, Objects.requireNonNull(user).getUid());
+                                       preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
+                                       preferenceManager.putString(Constants.KEY_IMAGE, Objects.requireNonNull(user.getPhotoUrl()).toString());
+                                       preferenceManager.putString(Constants.KEY_EMAIL,user.getEmail());
                                        HashMap<String,Object> data = new HashMap<>();
                                        data.put(Constants.KEY_EMAIL,user.getEmail());
                                        data.put(Constants.KEY_NAME,user.getDisplayName());
                                        data.put(Constants.KEY_IMAGE,user.getPhotoUrl() == null ? "https://cdn-icons-png.flaticon.com/512/166/166538.png" : user.getPhotoUrl());
+                                       data.put(Constants.KEY_AVAILABILITY,0);
                                        database.collection(Constants.KEY_COLLECTION_USERS)
                                                .document(user.getUid())
                                                .set(data);
@@ -230,12 +237,12 @@ public class RootViewModel {
     }
     private void dialogSuccess(FirebaseUser user){
         View viewModel = LayoutInflater.from(context).inflate(R.layout.dialog_verification,null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(viewModel.getContext());
-        builder.setView(viewModel);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context,R.style.BottomSheetTheme);
+        bottomSheetDialog.setContentView(viewModel);
+        bottomSheetDialog.show();
         Button button = viewModel.findViewById(R.id.btn_verify_email);
         button.setOnClickListener(view ->{
+            bottomSheetDialog.dismiss();
             context.startActivity(new Intent(context, HomeActivity.class));
         });
         viewModel.findViewById(R.id.tv_send_it_again).setOnClickListener(view ->{

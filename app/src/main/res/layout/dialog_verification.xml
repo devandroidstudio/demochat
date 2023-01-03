@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:background="@drawable/bg_bottom_sheet"
     android:paddingVertical="20dp"
     android:gravity="center"
     android:orientation="vertical"

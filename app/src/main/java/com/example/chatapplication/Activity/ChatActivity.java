@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.ActivityChatBinding;
+import com.example.chatapplication.model.CallViewModel;
 import com.example.chatapplication.model.ChatMessage;
 import com.example.chatapplication.model.TimeDifference;
 import com.example.chatapplication.model.User;
@@ -82,6 +84,9 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                 if (result.getData() != null){
                     Uri uri = result.getData().getData();
                     final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(uri,ChatActivity.this));
+                    System.out.println(FileExtension.getFileExtension(uri,ChatActivity.this));
+                    System.out.println("Uri"+uri.toString());
+                    Log.e("fileExtension", "onSuccess: "+ FileExtension.getFileExtension(uri,ChatActivity.this));
                     fileRef.putFile(result.getData().getData()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -90,6 +95,8 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         sendMessage(Constants.KEY_IMAGE,uri.toString());
+
+
                                     }
                                 });
                             }
@@ -118,6 +125,7 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.MATCH_PARENT);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
+
         setContentView(binding.getRoot());
 
         if (CheckConnection.haveNetworkConnection(this)){
@@ -320,6 +328,7 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
     private void loadReceiverDetails(){
         receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
         binding.textName.setText(receiverUser.name);
+        binding.setCall(new CallViewModel(ChatActivity.this,receiverUser));
 
 //        Toast.makeText(this, receiverUser.userId, Toast.LENGTH_SHORT).show();
     }

@@ -37,4 +37,7 @@
     <string name="pass">***********</string>
     <string name="input_a_message">Input a message</string>
     <string name="string_voice_chat">Speak to text</string>
+    <string name="change_username">Change Username</string>
+    <string name="change_email">Change Email</string>
+    <string name="change_password">Change Password</string>
 </resources>

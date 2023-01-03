@@ -180,7 +180,6 @@ public class ChatFragment extends Fragment implements ConversionListener {
                     }
 
                 }
-
             }
             count2++;
             System.out.println("Count2:"+count2);
