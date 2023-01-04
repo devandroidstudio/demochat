@@ -12,6 +12,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class User implements Serializable {
     public String name,image,email,fcmToken,userId;
+    public Long available;
     @BindingAdapter("imageUrl")
     public static void loadImage(CircleImageView view, String imageUrl) {
         Picasso.get().load(imageUrl)
@@ -19,12 +20,22 @@ public class User implements Serializable {
                 .into(view);
     }
 
-    public User(String name, String image, String email, String fcmToken, String userId) {
+//    public User(String name, String image, String email, String fcmToken, String userId) {
+//        this.name = name;
+//        this.image = image;
+//        this.email = email;
+//        this.fcmToken = fcmToken;
+//        this.userId = userId;
+//    }
+
+
+    public User(String name, String image, String email, String fcmToken, String userId, Long available) {
         this.name = name;
         this.image = image;
         this.email = email;
         this.fcmToken = fcmToken;
         this.userId = userId;
+        this.available = available;
     }
 
     public User() {

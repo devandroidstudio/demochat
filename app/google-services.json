@@ -1,41 +1,42 @@
 {
   "project_info": {
-    "project_number": "766328528144",
-    "project_id": "chatapplication-42183",
-    "storage_bucket": "chatapplication-42183.appspot.com"
+    "project_number": "86487204917",
+    "firebase_url": "https://chatapplication2-d6caf-default-rtdb.firebaseio.com",
+    "project_id": "chatapplication2-d6caf",
+    "storage_bucket": "chatapplication2-d6caf.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:766328528144:android:588019b972f35ed9919995",
+        "mobilesdk_app_id": "1:86487204917:android:e24d612e177420077c5d7c",
         "android_client_info": {
           "package_name": "com.example.chatapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "766328528144-0qh9s1jard02olvaqvrsc9rt2lit01vf.apps.googleusercontent.com",
+          "client_id": "86487204917-b2ku23ulubsqgn338g9r5juo52p4qfbn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.chatapplication",
-            "certificate_hash": "fbfd1d52304d2900f2b8d9205070fcbd58b6288e"
+            "certificate_hash": "04b5b02fc5b3104b3d9e9782b227c14293a0c539"
           }
         },
         {
-          "client_id": "766328528144-029fifhq0da6prpbdm8td49dpb8bl6de.apps.googleusercontent.com",
+          "client_id": "86487204917-udk7970unf3tnmagh6pbdiboc2l8dapj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCe2VDW0QzXgAAknkaIvj62SgC4kqQritI"
+          "current_key": "AIzaSyApmtcHcE0AW4Gn4ukhqcxowJFf_4gKBQI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "766328528144-029fifhq0da6prpbdm8td49dpb8bl6de.apps.googleusercontent.com",
+              "client_id": "86487204917-udk7970unf3tnmagh6pbdiboc2l8dapj.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -108,7 +108,7 @@ public class ChatFragment extends Fragment implements ConversionListener {
                     if (currentUserId.equals(documentChange.getDocument().getId())){
                         continue;
                     }
-                    User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId());
+                    User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId(),documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY));
                     valueAvailable = Objects.requireNonNull(documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY)).intValue();
                     list.add(user);
                 }
@@ -117,7 +117,7 @@ public class ChatFragment extends Fragment implements ConversionListener {
                     if (currentUserId.equals(documentChange.getDocument().getId())){
                         continue;
                     }
-                    User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId());
+                    User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId(),documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY));
                     valueAvailable = Objects.requireNonNull(documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY)).intValue();
                     for (User users: list) {
                         if (users.userId.equals(user.userId)){
@@ -129,9 +129,12 @@ public class ChatFragment extends Fragment implements ConversionListener {
 
             }
             adapter = new StatusAdapter(list,requireContext(),valueAvailable, this::onConversionClicked);
-            conversionAdapter.setAvailable(valueAvailable);
+           if (!String.valueOf(valueAvailable).isEmpty() || String.valueOf(valueAvailable) != null){
+               conversionAdapter.setAvailable(valueAvailable);
+               conversionAdapter.notifyDataSetChanged();
+           }
             adapter.notifyDataSetChanged();
-            conversionAdapter.notifyDataSetChanged();
+
             binding.recycleViewStatusChatUser.setAdapter(adapter);
             binding.recycleViewStatusChatUser.setVisibility(View.VISIBLE);
         }

@@ -57,4 +57,5 @@ dependencies {
     implementation 'com.github.dhaval2404:imagepicker:2.1'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:latest.release'
+    implementation 'com.github.ZEGOCLOUD:zego_uikit_signaling_plugin_android:latest.release'
 }

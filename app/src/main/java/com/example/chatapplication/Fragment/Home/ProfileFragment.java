@@ -5,15 +5,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -28,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,7 +36,6 @@ import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.MainActivity;
 import com.example.chatapplication.R;
 import com.example.chatapplication.Utils.Constants;
-import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.Validation.Validation;
@@ -45,12 +43,9 @@ import com.example.chatapplication.databinding.FragmentProfileBinding;
 import com.example.chatapplication.model.AccountViewModel;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -63,7 +58,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 
@@ -86,27 +80,24 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
     private static final Map<String, Object> updateDatabase = new HashMap<>();
     private static final StorageReference storageReference = FirebaseStorage.getInstance().getReference("Profile");
     private ProgressDialog progressDialog;
-    private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == Activity.RESULT_OK){
-                if (result.getData() != null){
-                    Uri uri = result.getData().getData();
-                    final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(uri,requireActivity()));
-                    fileRef.putFile(result.getData().getData()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()){
-                                fileRef.getDownloadUrl().addOnSuccessListener(ProfileFragment.this::updatePhoto);
-                            }
-                        }
-                    }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
-
-                }
+    private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == Activity.RESULT_OK){
+            if (result.getData() != null){
+                Uri uri = result.getData().getData();
+                final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ getFileExtension(uri));
+                fileRef.putFile(uri).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        fileRef.getDownloadUrl().addOnSuccessListener(ProfileFragment.this::updatePhoto);
+                    }
+                }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }
     });
-
+    public String getFileExtension(Uri uri) {
+        ContentResolver cr = requireContext().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -117,11 +108,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
         binding.layoutPass.setOnClickListener(this);
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Uploading...");
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext());
-        if (account != null){
-            binding.layoutPass.setVisibility(View.GONE);
-            System.out.println(account.getDisplayName()+account.getEmail());
-        }
+
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext());
+//        if (account != null){
+//            binding.layoutPass.setVisibility(View.GONE);
+//            System.out.println(account.getDisplayName()+account.getEmail());
+//        }
         onAction();
         return binding.getRoot();
     }
@@ -253,7 +245,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                     }
                 }
             });
-            button.setOnClickListener(v1 -> updatePassword(Objects.requireNonNull(textInputEditText.getText()).toString()));
+            button.setOnClickListener(v1 -> updatePassword(Objects.requireNonNull(textInputEditText.getText()).toString(),bottomSheetDialog));
         }
     }
     private void updateDisplayName(String username, BottomSheetDialog bottomSheetDialog){
@@ -268,11 +260,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                 user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
                         showDialogSuccess("Update username is success");
+                        user.reload();
                         AccountViewModel.displayName.set(user.getDisplayName());
                         bottomSheetDialog.dismiss();
                         preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
                         updateDatabase.put(Constants.KEY_NAME,username);
                         database.collection(Constants.KEY_COLLECTION_USERS).document(preferenceManager.getString(Constants.KEY_USER_ID)).update(updateDatabase);
+                        Toast.makeText(requireContext(), AccountViewModel.displayName.get(), Toast.LENGTH_SHORT).show();
                     }else {
                         dialogUpdateProfile();
                     }
@@ -281,7 +275,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
             }
         }
     }
-    private void updatePhoto(Uri uri){
+    private void updatePhoto(@NonNull Uri uri){
         progressDialog.show();
         preferenceManager.putString(Constants.KEY_IMAGE,uri.toString());
         if (user != null){
@@ -317,13 +311,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
             }
         }
     }
-    private void updatePassword(String password){
+    private void updatePassword(String password, BottomSheetDialog bottomSheetDialog){
         if (user != null){
             if (!Validation.ValidationPassword(password)){
                 Toast.makeText(requireContext(), "Password is valid", Toast.LENGTH_SHORT).show();
             }else {
                 user.updatePassword(password).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
+                        bottomSheetDialog.dismiss();
                         showDialogSuccess("Update password is success");
                     }else {
                         dialogUpdateProfile();
@@ -404,6 +399,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, I
                     return null;
                 });
     }
+
+    @Override
+    public void onCallBackVideo() {
+        return;
+    }
+
     public void reAuthenticate(String strEmail, String strPassword){
       if (user != null){
           AuthCredential credential = EmailAuthProvider

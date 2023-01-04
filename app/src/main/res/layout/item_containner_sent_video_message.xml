@@ -12,8 +12,7 @@
         android:layout_marginTop="@dimen/_8sdp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <ImageView
+        <VideoView
             android:elevation="@dimen/_5sdp"
             android:id="@+id/imageMessage"
             android:layout_width="0dp"
@@ -22,7 +21,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.5"
             app:layout_constraintWidth_max="wrap"
-            android:background="@drawable/bg_sent_message"
             android:padding="@dimen/_10sdp" />
 
         <TextView

@@ -1,6 +1,7 @@
 package com.example.chatapplication.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.GravityCompat;
@@ -52,7 +53,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -253,34 +257,44 @@ public class HomeActivity extends BaseActivity {
 
     private void getListDataUsers(){
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        database.collection(Constants.KEY_COLLECTION_USERS).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-                        if (task.isSuccessful()){
-                            for (QueryDocumentSnapshot document: task.getResult()) {
-                                User user = new User(document.getString(Constants.KEY_NAME),document.getString(Constants.KEY_IMAGE),document.getString(Constants.KEY_EMAIL),document.getString(Constants.KEY_FCM_TOKEN),document.getId());
-                                list.add(user);
+        database.collection(Constants.KEY_COLLECTION_USERS).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null){
+                    return;
+                }
+                if (value != null){
+                    for (DocumentChange documentChange: value.getDocumentChanges()) {
+                        if (documentChange.getType() == DocumentChange.Type.ADDED){
+                            String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+                            if (currentUserId.equals(documentChange.getDocument().getId())){
+                                continue;
                             }
-                            viewModel.setListUsers(list.stream().filter(x-> !Objects.equals(x.userId, currentUserId)).collect(Collectors.toList()));
+                            User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId(),documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY));
+//                            valueAvailable = Objects.requireNonNull(documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY)).intValue();
+                            list.add(user);
                         }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                        builder.setMessage(e.getMessage());
-                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
+                        else if (documentChange.getType() == DocumentChange.Type.MODIFIED){
+                            String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+                            if (currentUserId.equals(documentChange.getDocument().getId())){
+                                continue;
                             }
-                        });
-                        AlertDialog alertDialog = builder.create();
-                        alertDialog.show();
+                            User user = new User(documentChange.getDocument().getString(Constants.KEY_NAME),documentChange.getDocument().getString(Constants.KEY_IMAGE),documentChange.getDocument().getString(Constants.KEY_EMAIL),documentChange.getDocument().getString(Constants.KEY_FCM_TOKEN),documentChange.getDocument().getId(),documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY));
+//                            valueAvailable = Objects.requireNonNull(documentChange.getDocument().getLong(Constants.KEY_AVAILABILITY)).intValue();
+                            for (User users: list) {
+                                if (users.userId.equals(user.userId)){
+                                    list.remove(users);
+                                    list.add(user);
+                                }
+                            }
+                        }
+
                     }
-                });
+                    viewModel.setListUsers(list.stream().filter(x-> !Objects.equals(x.userId, preferenceManager.getString(Constants.KEY_USER_ID))).collect(Collectors.toList()));
+                }
+
+            }
+        });
     }
 
     private void getToken(){
@@ -333,6 +347,12 @@ public class HomeActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println(AccountViewModel.displayName.get());
     }
 
     @Override

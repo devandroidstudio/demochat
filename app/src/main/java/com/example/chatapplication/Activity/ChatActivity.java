@@ -5,11 +5,11 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
@@ -18,7 +18,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.chatapplication.Adapter.ChatAdapter;
-import com.example.chatapplication.Fragment.Home.ProfileFragment;
 import com.example.chatapplication.Listener.ICallBackNewsListener;
 import com.example.chatapplication.Network.ApiClient;
 import com.example.chatapplication.Network.ApiService;
@@ -29,7 +28,6 @@ import com.example.chatapplication.Utils.FileExtension;
 import com.example.chatapplication.Utils.PreferenceManager;
 import com.example.chatapplication.Utils.ShowCameraGallery;
 import com.example.chatapplication.databinding.ActivityChatBinding;
-import com.example.chatapplication.model.CallViewModel;
 import com.example.chatapplication.model.ChatMessage;
 import com.example.chatapplication.model.TimeDifference;
 import com.example.chatapplication.model.User;
@@ -47,12 +45,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.zegocloud.uikit.plugin.signaling.ZegoSignalingPlugin;
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig;
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService;
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoStartCallInvitationButton;
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +81,9 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
     private Boolean isReceiverAvailable = false;
     private ChatAdapter adapter;
     private String time = "";
+    public static final String KEY_MP4 = ".mp4";
     private static final StorageReference storageReference = FirebaseStorage.getInstance().getReference("Images");
+
     private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
@@ -84,9 +91,6 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                 if (result.getData() != null){
                     Uri uri = result.getData().getData();
                     final StorageReference fileRef = storageReference.child(System.currentTimeMillis()+"."+ FileExtension.getFileExtension(uri,ChatActivity.this));
-                    System.out.println(FileExtension.getFileExtension(uri,ChatActivity.this));
-                    System.out.println("Uri"+uri.toString());
-                    Log.e("fileExtension", "onSuccess: "+ FileExtension.getFileExtension(uri,ChatActivity.this));
                     fileRef.putFile(result.getData().getData()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -94,9 +98,12 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        sendMessage(Constants.KEY_IMAGE,uri.toString());
-
-
+                                        if (uri.toString().contains(KEY_MP4)){
+                                            sendMessage(Constants.KEY_VIDEO,uri.toString());
+                                        }
+                                        else {
+                                            sendMessage(Constants.KEY_IMAGE,uri.toString());
+                                        }
                                     }
                                 });
                             }
@@ -134,6 +141,11 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
             loadReceiverDetails();
             init();
             listenMessages();
+            initCallInviteService(preferenceManager.getString(Constants.KEY_USER_ID));
+
+            initVoiceButton();
+
+            initVideoButton();
         }else {
             binding.txtAvailability.setVisibility(View.VISIBLE);
             binding.txtAvailability.setText("Please turn on wifi");
@@ -163,6 +175,36 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
             intent.putExtra(RecognizerIntent.EXTRA_PROMPT, R.string.string_voice_chat);
             resultLauncher.launch(intent);
         });
+
+    }
+    private void initVideoButton() {
+        ZegoStartCallInvitationButton newVideoCall = findViewById(R.id.new_video_call);
+        newVideoCall.setIsVideoCall(true);
+        newVideoCall.setOnClickListener(v -> {
+            List<ZegoUIKitUser> users = new ArrayList<>();
+            users.add(new ZegoUIKitUser(receiverUser.userId));
+            newVideoCall.setInvitees(users);
+        });
+    }
+
+    private void initVoiceButton() {
+        ZegoStartCallInvitationButton newVoiceCall = findViewById(R.id.new_voice_call);
+        newVoiceCall.setIsVideoCall(false);
+        newVoiceCall.setOnClickListener(v -> {
+            List<ZegoUIKitUser> users = new ArrayList<>();
+            users.add(new ZegoUIKitUser(receiverUser.userId));
+            newVoiceCall.setInvitees(users);
+        });
+    }
+    public void initCallInviteService(String generateUserID) {
+        long appID = 1279747161;
+        String appSign = "1f3eb7ec3b7e780ddc5697b72b0103476a8f4e6191228729778023f2c3cd7061";
+        String userID = generateUserID;
+        String userName = generateUserID + "_" + Build.MANUFACTURER;
+
+        ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig(ZegoSignalingPlugin.getInstance());
+        ZegoUIKitPrebuiltCallInvitationService.init(getApplication(), appID, appSign, userID, userName,
+                callInvitationConfig);
     }
 
     private void init(){
@@ -173,7 +215,9 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
         binding.chatRecycleView.setHasFixedSize(true);
         binding.chatRecycleView.setAdapter(adapter);
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size());
-        
+        String pattern = "yyyy-MM-dd hh:mm:ss";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        Toast.makeText(this, new SimpleDateFormat("yyyy-MM-dd - hh:mm a", Locale.getDefault()).format(new Date()), Toast.LENGTH_SHORT).show();
     }
     private void listenAvailabilityOfReceiver(){
         database.collection(Constants.KEY_COLLECTION_USERS)
@@ -328,13 +372,17 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
     private void loadReceiverDetails(){
         receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
         binding.textName.setText(receiverUser.name);
-        binding.setCall(new CallViewModel(ChatActivity.this,receiverUser));
 
 //        Toast.makeText(this, receiverUser.userId, Toast.LENGTH_SHORT).show();
     }
+    @NonNull
     private String getReadableDateTime(Date date){
-        return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(date);
-
+        if (new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date).equals(LocalDate.now().toString())){
+            return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
+        }
+        else {
+            return new SimpleDateFormat("yyyy-MM-dd - hh:mm a", Locale.getDefault()).format(date);
+        }
     }
     private void addConversion(HashMap<String,Object> conversion){
         database.collection(Constants.KEY_COLLECTION_CONVERSATION)
@@ -397,5 +445,21 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
                     startForProfileImageResult.launch(intent);
                     return null;
                 });
+
+
+    }
+
+    @Override
+    public void onCallBackVideo() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startForProfileImageResult.launch(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZegoUIKitPrebuiltCallInvitationService.unInit();
     }
 }

@@ -1,33 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:paddingStart="20dp"
-    android:paddingTop="20dp"
-    android:background="@drawable/cool_background"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="200dp">
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/image_user_header"
-        android:src="@drawable/ic_launcher_background"
-        android:layout_width="100dp"
-        android:layout_height="100dp"/>
-    <TextView
-        android:id="@+id/textView_name_user_nav_header"
-        android:lines="1"
-        android:ellipsize="end"
-        android:text="asdnkasjdkasd"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        android:fontFamily="@font/alatsi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <TextView
-        android:id="@+id/textView_email_user_nav_header"
-        android:text="nguyenvana@gmail.com"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:fontFamily="@font/baloo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="account"
+            type="com.example.chatapplication.model.AccountViewModel" />
+    </data>
+
+    <LinearLayout
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:background="@drawable/cool_background"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            imageUrl="@{account.url}"
+            android:id="@+id/image_user_header"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+        <TextView
+            android:id="@+id/textView_name_user_nav_header"
+            android:lines="1"
+            android:ellipsize="end"
+            android:text="@{account.displayName}"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            android:fontFamily="@font/alatsi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textView_email_user_nav_header"
+            android:text="@{account.email}"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/baloo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</layout>

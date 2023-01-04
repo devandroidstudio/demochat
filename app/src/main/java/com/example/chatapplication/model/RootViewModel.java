@@ -203,10 +203,10 @@ public class RootViewModel {
                                @Override
                                public void onComplete(@NonNull Task<Void> task) {
                                    if (task.isSuccessful()){
+                                       user.reload();
                                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN,true);
                                        preferenceManager.putString(Constants.KEY_USER_ID, Objects.requireNonNull(user).getUid());
                                        preferenceManager.putString(Constants.KEY_NAME,user.getDisplayName());
-                                       preferenceManager.putString(Constants.KEY_IMAGE, Objects.requireNonNull(user.getPhotoUrl()).toString());
                                        preferenceManager.putString(Constants.KEY_EMAIL,user.getEmail());
                                        HashMap<String,Object> data = new HashMap<>();
                                        data.put(Constants.KEY_EMAIL,user.getEmail());

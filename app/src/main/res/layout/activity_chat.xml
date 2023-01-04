@@ -3,13 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:animateLayoutChanges="true">
-
-    <data>
-        <variable
-            name="call"
-            type="com.example.chatapplication.model.CallViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:background="@color/white"
         android:layout_width="match_parent"
@@ -72,23 +65,16 @@
             android:id="@+id/layout_call"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:onClick="@{() -> call.onClickVoiceCall()}"
-                android:id="@+id/btn_voice_call"
-                android:layout_marginEnd="@dimen/_10sdp"
-                app:tint="@color/white"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_baseline_local_phone_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:onClick="@{() -> call.onClickVideoCall()}"
-                android:id="@+id/btn_video_call"
-                app:tint="@color/white"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_baseline_videocam_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoStartCallInvitationButton
+                android:id="@+id/new_voice_call"
+                android:layout_width="35dp"
+                android:layout_height="30dp" />
+
+            <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoStartCallInvitationButton
+                android:id="@+id/new_video_call"
+                android:layout_width="35dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
         <TextView

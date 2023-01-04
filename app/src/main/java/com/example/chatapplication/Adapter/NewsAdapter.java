@@ -47,13 +47,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
-public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
+public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> implements DetailPhotoAdapter.ISendListener {
     private List<News> list = new ArrayList<>();
     private final Context context;
     private int countCurrent = 0;
     private boolean isRunning = false;
     private final ICallBackNewsListener listener;
-    private PreferenceManager preferenceManager;
+    private final PreferenceManager preferenceManager;
+    private Thread thread;
     public NewsAdapter(List<News> list, Context context, ICallBackNewsListener listener) {
         this.list = list;
         this.context = context;
@@ -83,24 +84,22 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
                 requestPermission();
             });
             accountViewModel2.urlImage.set(AccountViewModel.url.get());
-        } else if (news.userId.equals(preferenceManager.getString(Constants.KEY_USER_ID))){
-            accountViewModel2.urlUserPost.set(AccountViewModel.url.get());
-            accountViewModel2.displayName.set(AccountViewModel.displayName.get());
-        }
-        else {
+        } else {
             holder.binding.getRoot().setOnClickListener(view ->{
+                if (news.userId.equals(preferenceManager.getString(Constants.KEY_USER_ID))){
+                    accountViewModel2.urlUserPost.set(AccountViewModel.url.get());
+                    accountViewModel2.displayName.set(AccountViewModel.displayName.get());
+                }
                 View viewDialog = LayoutInflater.from(context).inflate(R.layout.layout_detail_bottom_sheet_news,null);
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context,R.style.BottomSheetTheme);
                 bottomSheetDialog.setContentView(viewDialog);
                 bottomSheetDialog.show();
-                bottomSheetDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 RoundedImageView roundedImageView = viewDialog.findViewById(R.id.image_user_news);
                 TextView textViewName = viewDialog.findViewById(R.id.text_view_name);
                 TextView textViewTime = viewDialog.findViewById(R.id.text_view_times);
                 ImageButton btnClose = viewDialog.findViewById(R.id.btn_close);
                 Picasso.get().load(news.resourceUserPost).into(roundedImageView);
                 textViewName.setText(news.namePost);
-                System.out.println(news.date);
                 textViewTime.setText(TimeDifference.findDateDiffStatus(news.date));
                 btnClose.setOnClickListener(v->{
                     bottomSheetDialog.dismiss();
@@ -108,12 +107,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
                 BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from((View) viewDialog.getParent());
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 ViewPager2 viewPager2 = viewDialog.findViewById(R.id.view_page_detail_news);
-                viewPager2.setAdapter(new DetailPhotoAdapter(news.resource));
+                viewPager2.setAdapter(new DetailPhotoAdapter(news.resource, this));
                 viewPager2.setPageTransformer(new ZoomOutPageTransformer());
                 viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
                 LinearProgressIndicator linearProgressIndicator = viewDialog.findViewById(R.id.linear_progress);
                 linearProgressIndicator.setMax(Constants.MAX_PROGRESS);
-                Thread thread = new Thread(() -> {
+                 thread = new Thread(() -> {
                    isRunning = true;
                     while (isRunning){
                         try {
@@ -144,9 +143,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
                                 e.printStackTrace();
                             }
                         }
-                        System.out.println(countCurrent);
                     }
                 });
+                viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        int positionCurrent = -1;
+                        if (position != positionCurrent){
+
+                            countCurrent = 0;
+                            if (thread != null){
+                                try {
+                                    thread.interrupt();
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                            positionCurrent = position;
+                        }
+                    }
+                });
+
             });
 
         }
@@ -179,6 +196,21 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             return 0;
         }
         return list.size();
+    }
+
+    @Override
+    public void ISendData(Boolean check) {
+        if (check){
+            countCurrent = 0;
+            isRunning = false;
+            if (thread != null){
+                try {
+                    thread.interrupt();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static class NewsViewHolder extends RecyclerView.ViewHolder{

@@ -42,7 +42,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
     public void onBindViewHolder(@NonNull StatusViewHolder holder, int position) {
         User user = list.get(position);
         holder.binding.setUser(user);
-        if (available == 1){
+        if (user.available == 1){
             holder.binding.viewStatusChat.setVisibility(View.VISIBLE);
             holder.binding.viewStatusOffStatus.setVisibility(View.GONE);
         }else {

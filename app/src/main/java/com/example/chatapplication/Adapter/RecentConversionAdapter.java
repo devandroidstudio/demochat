@@ -59,7 +59,7 @@ public class RecentConversionAdapter extends RecyclerView.Adapter<RecentConversi
             user.image = chatMessage.conversionImage;
             conversionListener.onConversionClicked(user);
         });
-        if (available == 1){
+        if (available == 1 && available != null){
             holder.binding.viewStatusChat.setVisibility(View.VISIBLE);
             holder.binding.viewStatusOffStatus.setVisibility(View.GONE);
         }else {

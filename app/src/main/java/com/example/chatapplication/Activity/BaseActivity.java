@@ -45,6 +45,19 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (CheckConnection.haveNetworkConnection(this)){
+//            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//            String date = format.format(new Date());
+//            documentReference.update(Constants.KEY_AVAILABILITY,0);
+//            documentReference.update(Constants.KEY_DATE,date);
+//        }else {
+//            CheckConnection.ShowToast_Short(this);
+//        }
+//    }
+
     @Override
     protected void onResume() {
         super.onResume();

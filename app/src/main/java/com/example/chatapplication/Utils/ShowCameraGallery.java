@@ -29,5 +29,12 @@ public class ShowCameraGallery {
                 bottomSheetDialog.dismiss();
             }
         });
+        viewDialog.findViewById(R.id.btn_video).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onCallBackVideo();
+                bottomSheetDialog.dismiss();
+            }
+        });
     }
 }

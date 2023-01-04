@@ -93,7 +93,7 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
     private String date;
     private  NewsAdapter adapter;
     private static boolean isExits = false;
-    private static List<News> newsList;
+    private List<News> newsList;
     private static String strNews = "";
     private FirebaseUser user;
     private final ActivityResultLauncher<Intent> startForProfileImageResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -104,12 +104,28 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
                     int count = result.getData().getClipData().getItemCount();
                     if (count != 0){
                         for (int i = 0; i < count; i++) {
-                            list.add(0,result.getData().getClipData().getItemAt(i).getUri());
+                            Uri uri = result.getData().getClipData().getItemAt(i).getUri();
+                            list.add(0,uri);
                         }
                     }
+
                     showDialogResult(list);
 
                 }
+            }
+        }
+    });
+    private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK){
+                if (result.getData() != null){
+                    Uri uri = result.getData().getData();
+                    System.out.println(uri.toString());
+                    Toast.makeText(requireContext(), uri.toString(), Toast.LENGTH_SHORT).show();
+                    list.add(0,uri);
+                }
+                showDialogResult(list);
             }
         }
     });
@@ -210,7 +226,18 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         startForProfileImageResult.launch(intent);
     }
 
+    @Override
+    public void onCallBackVideo() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        resultLauncher.launch(intent);
+    }
+
     private void showDialogResult(List<Uri> list){
+        for (Uri uris: list) {
+            System.out.println(uris.toString());
+        }
         View viewDialog = LayoutInflater.from(requireContext()).inflate(R.layout.layout_bottom_sheet_upload_image,null);
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),R.style.BottomSheetTheme);
         bottomSheetDialog.setContentView(viewDialog);
@@ -234,26 +261,32 @@ public class NewsFragment extends Fragment implements ICallBackNewsListener {
         viewDialog.findViewById(R.id.btn_upload_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println(strNews);
-                reference.child(LocalDate.now().toString()).child(strNews).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            isExits = true;
-                            News news = snapshot.getValue(News.class);
-                            if (news != null){
-                                listImageCurrent.addAll(news.resource);
+                if (!strNews.isEmpty()){
+                    reference.child(LocalDate.now().toString()).child(strNews).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()){
+                                isExits = true;
+                                News news = snapshot.getValue(News.class);
+                                if (news != null){
+                                    listImageCurrent.addAll(news.resource);
+                                }
+                                Toast.makeText(requireContext(), "Exist", Toast.LENGTH_SHORT).show();
+                            }else {
+                                Toast.makeText(requireContext(), "Not Exist", Toast.LENGTH_SHORT).show();
+                                isExits = false;
                             }
-                        }else {
-                            isExits = false;
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }else {
+                    isExits = false;
+                }
 
                 progressDialog.show();
                 for (int i = 0; i < list.size(); i++) {
