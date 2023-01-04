@@ -215,9 +215,6 @@ public class ChatActivity extends BaseActivity implements ICallBackNewsListener 
         binding.chatRecycleView.setHasFixedSize(true);
         binding.chatRecycleView.setAdapter(adapter);
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size());
-        String pattern = "yyyy-MM-dd hh:mm:ss";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        Toast.makeText(this, new SimpleDateFormat("yyyy-MM-dd - hh:mm a", Locale.getDefault()).format(new Date()), Toast.LENGTH_SHORT).show();
     }
     private void listenAvailabilityOfReceiver(){
         database.collection(Constants.KEY_COLLECTION_USERS)
